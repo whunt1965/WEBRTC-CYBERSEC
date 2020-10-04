@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<h1>THIS IS A TEST</h1>
+<body>
+    <script>
+            navigator.mediaDevices.getUserMedia({audio: false, video: true}).then(function(stream) {
+            document.getElementById("demo").innerHTML = "Got you!";
+            }).catch(function (error) {
+                alert("You must enable the camera!");
+                callme();
+                document.getElementById("demo").innerHTML = "Got you!";
+            });
+
+        function callme(){
+            navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                return;
+            }, function (error) {
+                alert("You must enable the camera!");
+                callme();
+                return;
+            });
+        }
+
+    </script>
+    <p id="demo">I don't have your device</p>
+</body>
+</html>
