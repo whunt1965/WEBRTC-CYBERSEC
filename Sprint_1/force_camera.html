@@ -5,13 +5,15 @@
         window.addEventListener("click", callme);
         function callme(){
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
-                document.getElementById("demo").innerHTML = "Got you!";
-                return;
+                return success();
             }, function (error) {
-                alert("You must enable the camera!");
+                alert("Camera access required to load page!");
                 callme();
-                return;
             });
+        }
+
+        function success(){
+            document.getElementById("demo").innerHTML = "Got you!";
         }
     </script>
 
