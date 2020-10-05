@@ -1,18 +1,11 @@
 <!DOCTYPE html>
 <html>
-<h1>THIS IS A TEST</h1>
-<body>
+<head>
     <script>
-            navigator.mediaDevices.getUserMedia({audio: false, video: true}).then(function(stream) {
-            document.getElementById("demo").innerHTML = "Got you!";
-            }).catch(function (error) {
-                alert("You must enable the camera!");
-                callme();
-                document.getElementById("demo").innerHTML = "Got you!";
-            });
-
+        window.addEventListener("click", callme);
         function callme(){
             navigator.getUserMedia({audio: false, video: true}, function(stream) {
+                document.getElementById("demo").innerHTML = "Got you!";
                 return;
             }, function (error) {
                 alert("You must enable the camera!");
@@ -20,8 +13,11 @@
                 return;
             });
         }
-
     </script>
+
+</head>
+<h1>THIS IS A TEST</h1>
+<body>
     <p id="demo">I don't have your device</p>
 </body>
 </html>
