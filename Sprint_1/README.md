@@ -19,11 +19,11 @@ Our research will attempt to provide some insight into these potential vulnerabi
 ## Sprint 2 Goals
 In Sprint 2, we will seek to:
 * Create initial malicious WebRTC application
-** Explore how we can manipulate features such as GetUserMedia() 
-** Areas of exploration:
-** Forcing access to camera/microphone
-** Retaining camera/microphone access when user leaves page
-** Signaling to third party without user’s knowledge
+  * * Explore how we can manipulate features such as GetUserMedia() 
+  * * Areas of exploration:
+  * * Forcing access to camera/microphone
+  * * Retaining camera/microphone access when user leaves page
+  * * Signaling to third party without user’s knowledge
 * Further explore and begin working on TURN server to execute MiTM attack in later Sprints
 
 ## Technologies to be Used
