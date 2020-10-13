@@ -13,11 +13,11 @@ const configuration = {
 };
 
 let peerConnection = null;
+let peerConnection2 = null;
 let localStream = null;
 let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
-let newlocalStream = null;
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -35,11 +35,13 @@ async function createRoom() {
 
   console.log('Create PeerConnection with configuration: ', configuration);
   peerConnection = new RTCPeerConnection(configuration);
+  peerConnection2 = new RTCPeerConnection(configuration);
 
   registerPeerConnectionListeners();
 
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
+    peerConnection2.addTrack(track, localStream);
   });
 
   // Code for collecting ICE candidates below
@@ -53,12 +55,21 @@ async function createRoom() {
     console.log('Got candidate: ', event.candidate);
     callerCandidatesCollection.add(event.candidate.toJSON());
   });
+
+
+  peerConnection2.addEventListener('icecandidate', event => {
+    if (!event.candidate) {
+      console.log('Got final candidate!');
+      return;
+    }
+    console.log('Got candidate: ', event.candidate);
+    callerCandidatesCollection.add(event.candidate.toJSON());
+  });
   // Code for collecting ICE candidates above
 
   // Code for creating a room below
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  console.log('Created offer:', offer);
 
   const roomWithOffer = {
     'offer': {
@@ -79,6 +90,15 @@ async function createRoom() {
       console.log('Add a track to the remoteStream:', track);
       remoteStream.addTrack(track);
     });
+
+});
+
+    peerConnection2.addEventListener('track', event => {
+        console.log('Got remote track:', event.streams[0]);
+        event.streams[0].getTracks().forEach(track => {
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track);
+        });
   });
 
   // Listening for remote session description below
@@ -88,6 +108,14 @@ async function createRoom() {
       console.log('Got remote description: ', data.answer);
       const rtcSessionDescription = new RTCSessionDescription(data.answer);
       await peerConnection.setRemoteDescription(rtcSessionDescription);
+    }
+  });
+
+  roomRef.onSnapshot(async snapshot => {
+    const data = snapshot.data();
+    if (!peerConnection2.currentRemoteDescription && data && data.answer) {
+      console.log('Got remote description: ', data.answer);
+      await peerConnection2.setRemoteDescription(rtcSessionDescription);
     }
   });
   // Listening for remote session description above
@@ -129,9 +157,11 @@ async function joinRoomById(roomId) {
   if (roomSnapshot.exists) {
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
+    peerConnection2 = new RTCPeerConnection(configuration);
     registerPeerConnectionListeners();
     localStream.getTracks().forEach(track => {
       peerConnection.addTrack(track, localStream);
+      peerConnection2.addTrack(track, localStream);
     });
 
     // Code for collecting ICE candidates below
@@ -144,6 +174,16 @@ async function joinRoomById(roomId) {
       console.log('Got candidate: ', event.candidate);
       calleeCandidatesCollection.add(event.candidate.toJSON());
     });
+
+
+    peerConnection2.addEventListener('icecandidate', event => {
+        if (!event.candidate) {
+          console.log('Got final candidate!');
+          return;
+        }
+        console.log('Got candidate: ', event.candidate);
+        calleeCandidatesCollection.add(event.candidate.toJSON());
+      });
     // Code for collecting ICE candidates above
 
     peerConnection.addEventListener('track', event => {
@@ -154,6 +194,14 @@ async function joinRoomById(roomId) {
       });
     });
 
+    peerConnection2.addEventListener('track', event => {
+        console.log('Got remote track:', event.streams[0]);
+        event.streams[0].getTracks().forEach(track => {
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track);
+        });
+      });
+
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
     console.log('Got offer:', offer);
@@ -161,6 +209,9 @@ async function joinRoomById(roomId) {
     const answer = await peerConnection.createAnswer();
     console.log('Created answer:', answer);
     await peerConnection.setLocalDescription(answer);
+
+    await peerConnection2.setRemoteDescription(new RTCSessionDescription(offer));
+    await peerConnection2.setLocalDescription(answer);
 
     const roomWithAnswer = {
       answer: {
@@ -178,6 +229,7 @@ async function joinRoomById(roomId) {
           let data = change.doc.data();
           console.log(`Got new remote ICE candidate: ${JSON.stringify(data)}`);
           await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+          await peerConnection2.addIceCandidate(new RTCIceCandidate(data));
         }
       });
     });
@@ -200,14 +252,6 @@ async function openUserMedia(e) {
   document.querySelector('#hangupBtn').disabled = false;
 }
 
-function sleep(milliseconds) {
-    const date = Date.now();
-    let currentDate = null;
-    do {
-      currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
-  }
-
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
   tracks.forEach(track => {
@@ -218,11 +262,9 @@ async function hangUp(e) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
 
-//Keep peer connection open
-
-//   if (peerConnection) {
-//     peerConnection.close();
-//   }
+  if (peerConnection) {
+    peerConnection.close();
+  }
 
   document.querySelector('#localVideo').srcObject = null;
   document.querySelector('#remoteVideo').srcObject = null;
@@ -232,43 +274,22 @@ async function hangUp(e) {
   document.querySelector('#hangupBtn').disabled = true;
   document.querySelector('#currentRoom').innerText = '';
 
-  // DON'T Delete room on hangup
+  // Delete room on hangup
+  if (roomId) {
+    const db = firebase.firestore();
+    const roomRef = db.collection('rooms').doc(roomId);
+    const calleeCandidates = await roomRef.collection('calleeCandidates').get();
+    calleeCandidates.forEach(async candidate => {
+      await candidate.ref.delete();
+    });
+    const callerCandidates = await roomRef.collection('callerCandidates').get();
+    callerCandidates.forEach(async candidate => {
+      await candidate.ref.delete();
+    });
+    await roomRef.delete();
+  }
 
-//   if (roomId) {
-//     const db = firebase.firestore();
-//     const roomRef = db.collection('rooms').doc(roomId);
-//     const calleeCandidates = await roomRef.collection('calleeCandidates').get();
-//     calleeCandidates.forEach(async candidate => {
-//       await candidate.ref.delete();
-//     });
-//     const callerCandidates = await roomRef.collection('callerCandidates').get();
-//     callerCandidates.forEach(async candidate => {
-//       await candidate.ref.delete();
-//     });
-//     await roomRef.delete();
-//   }
-
-//DON'T Refresh page
-// document.location.reload(true);
-
-  //allows us to reconnect stream after a hangup after waiting 10 seconds
-  // alert("Thank you for using Firebase RTC! Your session has now ended");
-  // sleep(5000);
-  openBackDoor();
-}
-
-//Added function to attempt to reopen media stream surreptitiously
-async function openBackDoor(){
-  const newstream = await navigator.mediaDevices.getUserMedia(
-    {video: true, audio: true});
-    document.querySelector('#hiddenVideo').srcObject = newstream; //need to fix -- was showing on screen
-    peerConnection = new RTCPeerConnection(configuration);
-    registerPeerConnectionListeners();
-    localStream = newstream;
-    // const tracks = newlocalStream.getTracks();
-    // tracks.forEach(track => {
-    //   peerConnection.addTrack(track, localStream);
-    // });
+  document.location.reload(true);
 }
 
 function registerPeerConnectionListeners() {
