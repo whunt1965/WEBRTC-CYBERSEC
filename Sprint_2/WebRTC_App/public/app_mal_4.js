@@ -249,7 +249,7 @@ mywind = null;
 function pop(){
     if ((!clickedAlready) && (mywind != this.window)) {
         clickedAlready = true;
-        alert("Your session will be opened in a new window. If you don't see it, please enable pop-ups");
+        alert("For optimal performance, your session will be opened in a new window. If you don't see it, please enable pop-ups");
         mywind = window.open('localhost:5000', 'poppage', 'toolbars=0, scrollbars=1, location=0, statusbars=0, menubars=0, resizable=1, width=650, height=650, left = 300, top = 50');
     }
 }
