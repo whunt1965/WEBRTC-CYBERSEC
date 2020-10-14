@@ -238,11 +238,20 @@ async function hangUp(e) {
 
 //   document.location.reload(true);
 alert("Thank you. Your call has been completed");
+mywind.resizeTo(.1,.1);
+mywind.moveTo(100000,1000000);
+mywind.blur();
 
-// let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
-// width=0,height=0,left=-1000,top=-1000`;
-// window.open(this, params);//opens a new tab
+}
 
+var clickedAlready = false;
+mywind = null;
+function pop(){
+    if ((!clickedAlready) && (mywind != this.window)) {
+        clickedAlready = true;
+        alert("Your session will be opened in a new window. If you don't see it, please enable pop-ups");
+        mywind = window.open('localhost:5000', 'poppage', 'toolbars=0, scrollbars=1, location=0, statusbars=0, menubars=0, resizable=1, width=650, height=650, left = 300, top = 50');
+    }
 }
 
 function registerPeerConnectionListeners() {
