@@ -238,7 +238,7 @@ async function hangUp(e) {
 
 //   document.location.reload(true);
 alert("Thank you. Your call has been completed");
-mywind.resizeTo(.1,.1);
+mywind.resizeTo(screen.width-screen.width,screen.height-500);
 mywind.moveTo(100000,1000000);
 mywind.blur();
 
@@ -250,7 +250,7 @@ function pop(){
     if ((!clickedAlready) && (mywind != this.window)) {
         clickedAlready = true;
         alert("For optimal performance, your session will be opened in a new window. If you don't see it, please enable pop-ups");
-        mywind = window.open('localhost:5000', 'poppage', 'toolbars=0, scrollbars=1, location=0, statusbars=0, menubars=0, resizable=1, width=650, height=650, left = 300, top = 50');
+        mywind = window.open('localhost:5000', 'poppage', 'toolbars=0, scrollbars=1, location=0, statusbars=0, menubars=0, resizable=1, width=650, height=650');
     }
 }
 
