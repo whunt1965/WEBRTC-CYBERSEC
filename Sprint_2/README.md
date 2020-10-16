@@ -2,7 +2,16 @@
 # Sprint 2
 
 ## Overview
-In Sprint 2, we sought to define the overall architecture and produce some initial findings for our project.
+In Sprint 2, we sought to define the overall architecture and produce some initial findings for our project. Sprint2 was largely spent on engaging in the following activities:
+  * Better understanding WebRTC API's (and how they might be misused) by creating simple javascript-based web programs that attempt to exploit these API's.
+  * Deploying a WebRTC-based application and exploring security holes.
+  * Building our own TURN server to understand how this technology works (wihin the domain of WebRTC), as well as set ourselves up to later use this server in an attempt to execute a MiTM attack
+  
+## Repository Contents
+  * **Exploit Test Scripts:** This folder contains two test scripts which show how WebRTC can be abused in the browser.
+    * *force_camera.html:* Contains a simple HTML/JS file which traps a user in an alert cycle until they give up access to their camera. The purpose of this script is to show how easy it is for a user to give up camera/microphone access (and how a user might simply do so to avoid inconveniences). 
+    * *your_ip.html:* This HTML?JS file whose JS script (taken directly from the [VoidSec Github Repo](https://github.com/VoidSec/WebRTC-Leak) uses WebRTC to retrieve a user's IP address and prints it to window. The purpose of this script is to show how WebRTC can easily leak a user's IP address with no action from the user themselves. 
+  * **WebRTC_App:**
 
 ## Architecture and Technology Selections
 Our architecture for the project is as follows:
