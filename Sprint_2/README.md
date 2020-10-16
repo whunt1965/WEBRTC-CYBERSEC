@@ -10,7 +10,7 @@ In Sprint 2, we sought to define the overall architecture and produce some initi
 ## Repository Contents
   * **Exploit Test Scripts:** This folder contains two test scripts which show how WebRTC can be abused in the browser.
     * *force_camera.html:* Contains a simple HTML/JS file which traps a user in an alert cycle until they give up access to their camera. The purpose of this script is to show how easy it is for a user to give up camera/microphone access (and how a user might simply do so to avoid inconveniences). 
-    * *your_ip.html:* This HTML?JS file whose JS script (taken directly from the [VoidSec Github Repo](https://github.com/VoidSec/WebRTC-Leak) uses WebRTC to retrieve a user's IP address and prints it to window. The purpose of this script is to show how WebRTC can easily leak a user's IP address with no action from the user themselves. 
+    * *your_ip.html:* This HTML/JS file whose JS script (taken directly from the [VoidSec Github Repo](https://github.com/VoidSec/WebRTC-Leak) uses WebRTC to retrieve a user's IP address and prints it to window. The purpose of this script is to show how WebRTC can easily leak a user's IP address with no action from the user themselves. 
   * **WebRTC_App:**
 
 ## Architecture and Technology Selections
