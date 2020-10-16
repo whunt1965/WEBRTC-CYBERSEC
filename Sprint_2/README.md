@@ -12,6 +12,8 @@ In Sprint 2, we sought to define the overall architecture and produce some initi
     * *force_camera.html:* Contains a simple HTML/JS file which traps a user in an alert cycle until they give up access to their camera. The purpose of this script is to show how easy it is for a user to give up camera/microphone access (and how a user might simply do so to avoid inconveniences). 
     * *your_ip.html:* This HTML/JS file whose JS script (taken directly from the [VoidSec Github Repo](https://github.com/VoidSec/WebRTC-Leak) uses WebRTC to retrieve a user's IP address and prints it to window. The purpose of this script is to show how WebRTC can easily leak a user's IP address with no action from the user themselves. 
   * **WebRTC_App:** This folder contains the public scripts for a simple WebRTC app developed using the Firebase RTC Codelab [solution code](https://github.com/whunt1965/FirebaseRTC/tree/solution). When run with app.js, the application simply allows two users to engage in a WebRTC video conference call (using Firebase as the signalling server). However, when run with app_mal.js, the application effectively bugs the computer (retains access to camera/microphone) after a user hangs up (until they close the browser). app_mal_2.js and app_mal_3.js include attempts to further epxloit this vulnerability (eg, reopening peer connections, etc.) that were unsuccessful. Meanwhile, app_mal_4.js extends the attack by attempting to perform the call into a pop-up window and hiding the window on the bugged computer after hangup. 
+  
+  * **Server Folder...**
 
 ## Architecture and Technology Selections
 As part of Sprint 2, we also sought to definite our architecture and technology selections for the rest of the project.
