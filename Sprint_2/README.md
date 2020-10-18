@@ -36,3 +36,8 @@ While this application provides a nice sandbox for learning the technology and d
 ## Demos
 Shown live in class via deployed application.
 
+## Sprint 3
+As we were ultimately unsucessful in deploying our TURN server and conducting a MiTM attack for Sprint2, we will focus on this piece in Sprint 3. Our Simple WebRTC Application provides an ability to enumerate STUN/TURN servers (which we have ensured are actually utilized through testing trying to run the application without them), so we should be able to add our own TURN server once deployed. From there, we will seek to open another session whenever our Turn server is accessed so we can insert a third-party listener (a Man-in-the-Middle). 
+
+Additionally, if we are successful in deploying the server, we will also begin seeing if we can replicate any parts of our attack on the Jitsi WebRTC application. We currently have our own instance of Jitsi running, so we will first need to ensure that we can modify the source code and re-deplpoy it (we are not certain we can do this). If this is possible, we can then search through the Jitsi source code and find the relevant functions controlling TURN/ICE server usage and session creation/termination. We will then attempt to make similar alterations to enable a session to remain open after a user hangs up. 
+
