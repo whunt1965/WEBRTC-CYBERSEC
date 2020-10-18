@@ -18,21 +18,17 @@ let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
 
-
 function init() {
-  //document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
+  document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
   document.querySelector('#hangupBtn').addEventListener('click', hangUp);
-  //document.querySelector('#createBtn').addEventListener('click', createRoom);
-  //document.querySelector('#joinBtn').addEventListener('click', joinRoom);
-  
-  openUserMedia();
+  document.querySelector('#createBtn').addEventListener('click', createRoom);
+  document.querySelector('#joinBtn').addEventListener('click', joinRoom);
+  roomDialog = new mdc.dialog.MDCDialog(document.querySelector('#room-dialog'));
 }
 
-
-
 async function createRoom() {
-  //document.querySelector('#createBtn').disabled = true;
-  //document.querySelector('#joinBtn').disabled = true;
+  document.querySelector('#createBtn').disabled = true;
+  document.querySelector('#joinBtn').disabled = true;
   const db = firebase.firestore();
   const roomRef = await db.collection('rooms').doc();
 
@@ -109,8 +105,8 @@ async function createRoom() {
 }
 
 function joinRoom() {
-  //document.querySelector('#createBtn').disabled = true;
-  //document.querySelector('#joinBtn').disabled = true;
+  document.querySelector('#createBtn').disabled = true;
+  document.querySelector('#joinBtn').disabled = true;
 
   document.querySelector('#confirmJoinBtn').
       addEventListener('click', async () => {
@@ -197,42 +193,26 @@ async function openUserMedia(e) {
   document.querySelector('#remoteVideo').srcObject = remoteStream;
 
   console.log('Stream:', document.querySelector('#localVideo').srcObject);
-  //document.querySelector('#cameraBtn').disabled = true;
-  //document.querySelector('#joinBtn').disabled = false;
-  //document.querySelector('#createBtn').disabled = false;
-  //document.querySelector('#hangupBtn').disabled = false;
-  var url = new URL(window.location.href);
-  var param1 = url.searchParams.get("roomtype");
-  console.log(window.location.href)
-  console.log(param1)
-  if (param1 == "create")
-  {
-    createRoom();
-    document.getElementById("titleheader").innerHTML = "YOU ARE THE HOST"
-  }
-  else if (param1 == "join")
-  {
-    var param2 = url.searchParams.get("room_id");
-    joinRoomById(param2);
-    document.getElementById("titleheader").innerHTML = "YOU ARE THE GUEST"
-  }
-  
+  document.querySelector('#cameraBtn').disabled = true;
+  document.querySelector('#joinBtn').disabled = false;
+  document.querySelector('#createBtn').disabled = false;
+  document.querySelector('#hangupBtn').disabled = false;
 }
 
 async function hangUp(e) {
-  const tracks = document.querySelector('#localVideo').srcObject.getTracks();
-  tracks.forEach(track => {
-    track.stop();
-  });
+//   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
+//   tracks.forEach(track => {
+//     track.stop();
+//   });
 
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
 
-  if (peerConnection) {
-    peerConnection.close();
-  }
-/*
+//   if (peerConnection) {
+//     peerConnection.close();
+//   }
+
   document.querySelector('#localVideo').srcObject = null;
   document.querySelector('#remoteVideo').srcObject = null;
   document.querySelector('#cameraBtn').disabled = false;
@@ -240,23 +220,38 @@ async function hangUp(e) {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#hangupBtn').disabled = true;
   document.querySelector('#currentRoom').innerText = '';
-*/
-  // Delete room on hangup
-  if (roomId) {
-    const db = firebase.firestore();
-    const roomRef = db.collection('rooms').doc(roomId);
-    const calleeCandidates = await roomRef.collection('calleeCandidates').get();
-    calleeCandidates.forEach(async candidate => {
-      await candidate.ref.delete();
-    });
-    const callerCandidates = await roomRef.collection('callerCandidates').get();
-    callerCandidates.forEach(async candidate => {
-      await candidate.ref.delete();
-    });
-    await roomRef.delete();
-  }
 
-  document.location.reload(true);
+  // Delete room on hangup
+//   if (roomId) {
+//     const db = firebase.firestore();
+//     const roomRef = db.collection('rooms').doc(roomId);
+//     const calleeCandidates = await roomRef.collection('calleeCandidates').get();
+//     calleeCandidates.forEach(async candidate => {
+//       await candidate.ref.delete();
+//     });
+//     const callerCandidates = await roomRef.collection('callerCandidates').get();
+//     callerCandidates.forEach(async candidate => {
+//       await candidate.ref.delete();
+//     });
+//     await roomRef.delete();
+//   }
+
+//   document.location.reload(true);
+  alert("Thank you. Your call has been completed");
+  window.resizeTo(screen.width-screen.width,screen.height-500);
+  window.moveTo(100000,1000000);
+  window.blur();
+
+}
+
+var clickedAlready = false;
+mywind = null;
+function pop(){
+    if ((!clickedAlready) && (mywind != this.window)) {
+        clickedAlready = true;
+        alert("For optimal performance, your session will be opened in a new window. If you don't see it, please enable pop-ups");
+        mywind = window.open('localhost:5000', 'poppage', 'toolbars=0, scrollbars=1, location=0, statusbars=0, menubars=0, resizable=1, width=650, height=650');
+    }
 }
 
 function registerPeerConnectionListeners() {
