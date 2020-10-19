@@ -21,7 +21,7 @@ In Sprint 2, we sought to define the overall architecture and produce some initi
       * Notably, this modification only appears to work on Safari (and other browsers which permit the usage of the JS function window.resizeTo() to chnage the size of a pop-up window. Chrome for example, does not allow this functionality, thus rendering this modification ineffective.
   
   * **Server Folder**
-   * Includes configuration files and set up instructions.
+    * Includes configuration files and set up instructions.
 
 ## Architecture and Technology Selections
 As part of Sprint 2, we also sought to definite our architecture and technology selections for the rest of the project. As our project is more havily focused on research than product design, we recognize that our architure may evolve over time. However, the minimum architecture required for this project is a WebRTC application and our own Turn Server.  
