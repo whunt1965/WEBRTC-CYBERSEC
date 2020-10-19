@@ -32,6 +32,7 @@ Our application (like most WebRTC apps) is built in javascript allowing us to di
 While this application provides a nice sandbox for learning the technology and developing initial tests, it may be too simple for further tests beyond simply capturing video/mic streams. As such, we are also exploring how we might replicate these vulnerabilities on more well-known open-source WebRTC applications. Indeed, we currently have an instance of Jitsi running on a Google VM, and intend to explore how we might alter its source code to replicate some of the vulnerabilities that we have already found as part of Sprint 3. 
 
 ### Turn Server
+STUN/TURN server is on the process of being set up for this project. The server is currently being hosted on Google Cloud with its IP address connected to the domain name buec601turnservers.com . This server will be used in our WebRTC app to initiate peer to peer connection. The plan is that with the server set up with malicious scripts, it can access personal information from users that are using WebRTC. 
 
 ## Demos
 Shown live in class via deployed application.
