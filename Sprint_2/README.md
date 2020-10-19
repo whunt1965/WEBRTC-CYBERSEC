@@ -2,7 +2,7 @@
 # Sprint 2
 
 ## Overview
-In Sprint 2, we sought to define the overall architecture and produce some initial findings for our project. Sprint2 was largely spent on engaging in the following activities:
+In Sprint 2, we sought to better understand WebRTC technology, define the overall architecture, and produce some initial findings for our project. Sprint2 was largely spent on engaging in the following activities:
   * Better understanding WebRTC API's (and how they might be misused) by creating simple javascript-based web programs that attempt to exploit these API's.
   * Deploying a WebRTC-based application and exploring security holes.
   * Building our own TURN server to understand how this technology works (wihin the domain of WebRTC), as well as set ourselves up to later use this server in an attempt to execute a MiTM attack
