@@ -2,7 +2,7 @@
 # Sprint 2
 
 ## Overview
-In Sprint 2, we sought to define the overall architecture and produce some initial findings for our project. Sprint2 was largely spent on engaging in the following activities:
+In Sprint 2, we sought to better understand WebRTC technology, define the overall architecture, and produce some initial findings for our project. Sprint2 was largely spent on engaging in the following activities:
   * Better understanding WebRTC API's (and how they might be misused) by creating simple javascript-based web programs that attempt to exploit these API's.
   * Deploying a WebRTC-based application and exploring security holes.
   * Building our own TURN server to understand how this technology works (wihin the domain of WebRTC), as well as set ourselves up to later use this server in an attempt to execute a MiTM attack
@@ -20,7 +20,8 @@ In Sprint 2, we sought to define the overall architecture and produce some initi
       * Meanwhile, as in the case above, User 2 will still have access to User 1's camera and microphone!
       * Notably, this modification only appears to work on Safari (and other browsers which permit the usage of the JS function window.resizeTo() to chnage the size of a pop-up window. Chrome for example, does not allow this functionality, thus rendering this modification ineffective.
   
-  * **Server Folder...**
+  * **Server Folder**
+    * Includes configuration files and set up instructions.
 
 ## Architecture and Technology Selections
 As part of Sprint 2, we also sought to definite our architecture and technology selections for the rest of the project. As our project is more havily focused on research than product design, we recognize that our architure may evolve over time. However, the minimum architecture required for this project is a WebRTC application and our own Turn Server.  
@@ -32,6 +33,7 @@ Our application (like most WebRTC apps) is built in javascript allowing us to di
 While this application provides a nice sandbox for learning the technology and developing initial tests, it may be too simple for further tests beyond simply capturing video/mic streams. As such, we are also exploring how we might replicate these vulnerabilities on more well-known open-source WebRTC applications. Indeed, we currently have an instance of Jitsi running on a Google VM, and intend to explore how we might alter its source code to replicate some of the vulnerabilities that we have already found as part of Sprint 3. 
 
 ### Turn Server
+STUN/TURN server is on the process of being set up for this project. The server is currently being hosted on Google Cloud with its IP address connected to the domain name buec601turnservers.com . This server will be used in our WebRTC app to initiate peer to peer connection. The plan is that with the server set up with malicious scripts, it can access personal information from users that are using WebRTC. 
 
 ## Demos
 Shown live in class via deployed application.
