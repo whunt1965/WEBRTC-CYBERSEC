@@ -6,8 +6,8 @@
 Our project involves exploring vulnerabilities in WebRTC and associated applications. Specific findings, test scripts, and applications may be found in the individual "Sprint X" folders of this repository. The contents of each folder are briefly described below. 
 
 ## Contents
-* Sprint 1 -- Contains a README.md file with an overview of our project goals, user stories, and minimum viable product
-* Sprint 2 -- Our initial work at developing malicious HTML scripts (exploiting WebRTC API's), a malicious WebRTC application, and a compromised Turn Server (to conduct MiTM attacks)
+* **[MalciousWebRTCApplication](https://github.com/whunt1965/WEBRTC-CYBERSEC/tree/main/MaliciousWebRTCApplication):** Contains a number of scripts designed to use core WebRTC API's/features in a malcious manner. In particular, the folder includes two examples of a WebRTC application that can be used to bug the computer of another user. 
+* **[MiTM](https://github.com/whunt1965/WEBRTC-CYBERSEC/tree/main/MiTM):** An example of exploiting a WebRTC application by using a malicious signalling server... (Sprint 3 Focus)
 
 ## Sprint 1
 
