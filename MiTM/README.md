@@ -1,3 +1,5 @@
+# Starter files for MiTM attack -- pulled from https://github.com/googlecodelabs/webrtc-web
+
 # Realtime communication with WebRTC
 
 This code has the resources you need for the codelab [Realtime communication with WebRTC](https://codelabs.developers.google.com/codelabs/webrtc-web/#0).
