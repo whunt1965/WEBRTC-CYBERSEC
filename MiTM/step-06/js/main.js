@@ -184,11 +184,10 @@ function signalingMessageCallback(message) {
     peerConn.setRemoteDescription(new RTCSessionDescription(message), function() {},
                                   logError);
 
-  } else if (message.type === 'candidate') {
-    peerConn.addIceCandidate(new RTCIceCandidate({
-      candidate: message.candidate
-    }));
-
+  } else if (message.type === 'candidate') { //fixed base on issues thread
+    peerConn.addIceCandidate(new RTCIceCandidate({ candidate: message.candidate, 
+      sdpMid:message.id, 
+      sdpMLineIndex: message.label, }));
   }
 }
 
