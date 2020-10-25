@@ -1,28 +1,15 @@
-# Starter files for MiTM attack -- pulled from https://github.com/googlecodelabs/webrtc-web
+# Conducting a MiTM Attack on a WebRTC application
+This repository contains our efforts to conduct a MiTM attack on a WebRTC application. 
 
-# Realtime communication with WebRTC
+To begin, we pulled the source code for the [Realtime communication with WebRTC codelab](https://codelabs.developers.google.com/codelabs/webrtc-web/#0), which is available in [this Github Repository](//github.com/googlecodelabs/webrtc-web). 
 
-This code has the resources you need for the codelab [Realtime communication with WebRTC](https://codelabs.developers.google.com/codelabs/webrtc-web/#0).
+We chose to use this codelab as a basis because it specifically provides instructions for setting up a signalling server for the application. While we previously intended to compromise a TURN server in order to perform the attack, further research (specifically [this account](https://webrtchacks.com/webrtc-and-man-in-the-middle-attacks/) on a successful WebRTC MiTM attack by Alan Johnston) led us to realize that we needed to begin by compromising the TURN server.
 
-This is a work in progress. If you find a mistake or have a suggestion, please [file an issue](https://github.com/googlecodelabs/webrtc-web/issues). Thanks!
+## Setting Up the Attack
 
-## What you'll learn
-* Get video from your webcam
-* Stream video with RTCPeerConnection
-* Stream data with RTCDataChannel
-* Set up a signaling service to exchange messages
-* Combine peer connection and signaling
-* Take a photo and share it via a data channel
+## Results
 
+## Why this Attack Matters
 
-## What you'll need
-* Chrome 47 or above.
-* Web Server for Chrome, or use your own web server of choice.
-* The sample code.
-* A text editor.
-* Basic knowledge of HTML, CSS and JavaScript, Node.JS.
-
-
-## For 'step-04', 'step-05', 'step-06'
-
-Run `npm install` before running the code.
+## Running on Your own Device
+To begin, please visit the [Realtime communication with WebRTC codelab](https://codelabs.developers.google.com/codelabs/webrtc-web/#0) and follow the instructions for getting source code and installing necessary dependencies (including NodeJS). 

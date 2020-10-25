@@ -3,7 +3,7 @@
 
 **Authors: Wiley Hunt and Apollo Lo**
 
-Our project involves exploring vulnerabilities in WebRTC and associated applications. Specific findings, test scripts, and applications may be found in the individual "Sprint X" folders of this repository. The contents of each folder are briefly described below. 
+Our project involves exploring vulnerabilities in WebRTC and associated applications. 
 
 ## Contents
 * **[MalciousWebRTCApplication](https://github.com/whunt1965/WEBRTC-CYBERSEC/tree/main/MaliciousWebRTCApplication):** Contains a number of scripts designed to use core WebRTC API's/features in a malcious manner. In particular, the folder includes two examples of a WebRTC application that can be used to bug the computer of another user. 
