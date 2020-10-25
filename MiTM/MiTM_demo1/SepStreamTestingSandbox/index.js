@@ -4,6 +4,7 @@ var os = require('os');
 var nodeStatic = require('node-static');
 var http = require('http');
 var socketIO = require('socket.io');
+var numClients = 0;
 
 var fileServer = new(nodeStatic.Server)();
 var app = http.createServer(function(req, res) {
@@ -20,31 +21,41 @@ io.sockets.on('connection', function(socket) {
     socket.emit('log', array);
   }
 
-  socket.on('message', function(message) {
+  socket.on('message', function(room, message) {
     log('Client said: ', message);
+    var nextroom;
+    switch(myroom){
+      case("A"):{nextroom = "attacker"; break};
+      case("attacker"):{nextroom = "attacker"; break};
+    }
     // for a real app, would be room-only (not broadcast)
-    socket.broadcast.emit('message', message);
+    //socket.broadcast.emit('message', message);
+    socket.to().emit('message', message);
   });
 
+  //Modified to set up attack
   socket.on('create or join', function(room) {
     log('Received request to create or join room ' + room);
 
-    var clientsInRoom = io.sockets.adapter.rooms[room];
-    var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
-    log('Room ' + room + ' now has ' + numClients + ' client(s)');
+    // var clientsInRoom = io.sockets.adapter.rooms[room];
+    // var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
+    // log('Room ' + room + ' now has ' + numClients + ' client(s)');
 
-    if (numClients === 0) {
-      socket.join(room);
-      log('Client ID ' + socket.id + ' created room ' + room);
+
+    if (numClients === 0) {//miTM case
+      socket.join("attacker");
+      socket.emit('setAttack', room, socket.id);
+    }else if(numClients === 1){
+      socket.join("A");
+      //log('Client ID ' + socket.id + ' created room ' + room);
       socket.emit('created', room, socket.id);
-
-    } else if (numClients === 1) {
-      log('Client ID ' + socket.id + ' joined room ' + room);
-      io.sockets.in(room).emit('join', room);
-      socket.join(room);
-      socket.emit('joined', room, socket.id);
-      io.sockets.in(room).emit('ready');
-    } else { // max two clients
+    } else if (numClients === 2) {
+      //log('Client ID ' + socket.id + ' joined room ' + room);
+      //io.sockets.in(room).emit('join', room);
+      socket.join("B");
+      socket.emit('joined', "B", socket.id);
+      //io.sockets.in(room).emit('ready');
+    } else { // max two clients plus MiTM
       socket.emit('full', room);
     }
   });
@@ -63,5 +74,10 @@ io.sockets.on('connection', function(socket) {
   socket.on('bye', function(){
     console.log('received bye');
   });
+
+  // socket.on('readyAttack', function(room){
+  //   var clients = [...Object.keys(clientsInRoom.sockets)];
+  //   var A = clients[0];
+  // });
 
 });

