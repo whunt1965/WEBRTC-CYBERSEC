@@ -3,9 +3,10 @@
 var isChannelReady = false;
 var isInitiator = false;
 var isStarted = false;
-var localStream;
+var isAttacker = false;//delineates attacker
+var localStream = null;
 var pc;
-var remoteStream;
+var remoteStream = null;
 var turnReady;
 
 var pcConfig = {
@@ -24,17 +25,18 @@ var sdpConstraints = {
 
 //var room = 'foo';
 // Could prompt for room name:
-var room = prompt('Enter room name:');
+var myRoom = prompt('Enter room name:');
 
 var socket = io.connect();
 
-if (room !== '') {
-  socket.emit('create or join', room);
-  console.log('Attempted to create or  join room', room);
+if (myRoom !== '') {
+  socket.emit('create or join', myRoom);
+  console.log('Attempted to create or  join room', myRoom);
 }
 
 socket.on('created', function(room) {
   console.log('Created room ' + room);
+  myRoom = room;
   isInitiator = true;
 });
 
@@ -45,11 +47,13 @@ socket.on('full', function(room) {
 socket.on('join', function (room){
   console.log('Another peer made a request to join room ' + room);
   console.log('This peer is the initiator of room ' + room + '!');
+  myRoom = room;
   isChannelReady = true;
 });
 
 socket.on('joined', function(room) {
   console.log('joined: ' + room);
+  myRoom = room;
   isChannelReady = true;
 });
 
@@ -57,11 +61,21 @@ socket.on('log', function(array) {
   console.log.apply(console, array);
 });
 
+//test function to have attacker forward messages
+socket.on('sniff', function(message, room){
+  socket.emit('forward', message, room);
+});
+
+//Sets local attacker varaiable
+socket.on('set attacker', function(){
+  isAttacker = true;
+});
+
 ////////////////////////////////////////////////
 
 function sendMessage(message) {
-  console.log('Client sending message: ', message);
-  socket.emit('message', message);
+  console.log('Client sending message: ', message, myRoom);
+  socket.emit('message', message, myRoom);
 }
 
 // This client receives a message
@@ -102,13 +116,21 @@ navigator.mediaDevices.getUserMedia({
   alert('getUserMedia() error: ' + e.name);
 });
 
+//Disabled local video for attacker
 function gotStream(stream) {
-  console.log('Adding local stream.');
-  localStream = stream;
-  localVideo.srcObject = stream;
-  sendMessage('got user media');
-  if (isInitiator) {
-    maybeStart();
+  if(!isAttacker){
+    console.log('Adding local stream.');
+    localStream = stream;
+    localVideo.srcObject = stream;
+    sendMessage('got user media');
+
+    //shim function for sending attacker a stream -- not functioning
+    // socket.emit('stream', localStream);
+    // console.log('Uh oh, shared my stream...');
+    
+    if (isInitiator) {
+      maybeStart();
+    }
   }
 }
 
@@ -255,3 +277,25 @@ function stop() {
   pc.close();
   pc = null;
 }
+
+
+
+
+//shim functions for setting attacker streams
+// NOT currently working
+
+//gets stream from server
+// socket.on('captured stream', function(stream){
+//   cloneStream(stream);
+// });
+
+// //sets local streams in DOM
+// function cloneStream(stream){
+//   if (localStream !== null){
+//     localStream = stream;
+//     localVideo.srcObject = stream;
+//   }else{
+//     remoteStream = stream;
+//     remoteVideo.srcObject = remoteStream;
+//   }
+// }
