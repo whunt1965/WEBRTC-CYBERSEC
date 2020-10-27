@@ -45,7 +45,7 @@ io.sockets.on('connection', function(socket) {
 
   //Shim function for setting streams -- Not operating currently
   // socket.on('stream', function(stream) {
-  //   socket.to(mitm).emit('captured stream', stream);
+  //   socket.to("mitm").emit('captured stream', stream);
   // });
 
 

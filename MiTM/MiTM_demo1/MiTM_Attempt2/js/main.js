@@ -125,7 +125,7 @@ function gotStream(stream) {
     sendMessage('got user media');
 
     //shim function for sending attacker a stream -- not functioning
-    // socket.emit('stream', localStream);
+    // socket.emit('stream', stream);
     // console.log('Uh oh, shared my stream...');
     
     if (isInitiator) {
@@ -291,9 +291,9 @@ function stop() {
 
 // //sets local streams in DOM
 // function cloneStream(stream){
-//   if (localStream !== null){
+//   if (localStream !== 'undefined'){
 //     localStream = stream;
-//     localVideo.srcObject = stream;
+//     localVideo.srcObject = localStream;
 //   }else{
 //     remoteStream = stream;
 //     remoteVideo.srcObject = remoteStream;
