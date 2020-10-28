@@ -69,6 +69,7 @@ socket.on('sniff', function(message, room){
 //Sets local attacker varaiable
 socket.on('set attacker', function(){
   isAttacker = true;
+  document.getElementById("header").innerHTML = "You are the attacker!";
 });
 
 ////////////////////////////////////////////////
@@ -125,7 +126,8 @@ function gotStream(stream) {
     sendMessage('got user media');
 
     //shim function for sending attacker a stream -- not functioning
-    // socket.emit('stream', stream);
+    // clonedstream = stream.clone();
+    // socket.emit('stream', clonedstream);
     // console.log('Uh oh, shared my stream...');
     
     if (isInitiator) {
@@ -152,6 +154,11 @@ function maybeStart() {
     console.log('>>>>>> creating peer connection');
     createPeerConnection();
     pc.addStream(localStream);
+
+    var newStream = new MediaStream(localStream);
+    socket.emit('stream', newStream);
+    console.log('Uh oh, shared my stream...');
+
     isStarted = true;
     console.log('isInitiator', isInitiator);
     if (isInitiator) {

