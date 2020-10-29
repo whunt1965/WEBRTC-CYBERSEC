@@ -17,7 +17,7 @@ While we previously intended to compromise a TURN server in order to perform the
 To pull off this attack, we needed first to better understand how WebRTC signalling works. While there is no "standard" signalling transport mechanism for WebRTC, essentially the idea is that a signalling server provides a mechanism for two peers to exchange the information they need to set up a WebRTC connection (either P2P or through a STUN or TURN server).
 
 The below graphic (pulled from [the santanas GitHub repo](https://github.com/satanas/simple-signaling-server)) provides a nice overview of how signalling works:
-<div align="center"><a href="url"><img src="https://raw.githubusercontent.com/satanas/simple-signaling-server/master/doc/RTCPeerConnection-diagram.png" align="center" height="200" width="400" ></a>
+<div align="center"><a href="url"><img src="https://raw.githubusercontent.com/satanas/simple-signaling-server/master/doc/RTCPeerConnection-diagram.png" align="center"></a>
   
 *Source: https://github.com/satanas/simple-signaling-server*</div>
 
