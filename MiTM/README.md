@@ -48,6 +48,11 @@ Currently, the application only runs on local host, and interestingly, only one 
 
 ## Why this Attack Matters
 
+As in the case of our malicious WebRTC application, this example provides another concrete demonstration of a potential WebRTC vulnerability: if a signalling server is compromised (or malicious to begin with) a MiTM could compromise a WebRTC call. Our initial example assumes that an attacker can both control the signalling server (to divert calls to theirself) as well as compromise the client-facing javascript controlling the application. 
+
+However, even with these assumptions, our example does show that is possible for a WebRTC call to be "eavesdropped upon" without users realizing it. 
+
+
 ## Running on Your own Device
 To begin, please visit the [Realtime communication with WebRTC codelab](https://codelabs.developers.google.com/codelabs/webrtc-web/#0) and follow the instructions for getting source code and installing necessary dependencies (including NodeJS). 
 
@@ -60,3 +65,11 @@ In your browser, visit localhost:8080. For the first session, set your room as '
 In the "Attacker" tab, you will see and/hear the video from the other tabs. Note: in Google Chrome, only one user's video is available in the attacker tab (in Safari, both will be visible).
 
 ## Looking Ahead: Sprint 4
+
+We found this attack very interesting and would like to continue to expand upon it in Sprint 4. In particular, we will seek to:
+
+1. Deploy our signalling server to a web-accesible virtual machine (so we can see how the attack would work in the real world, not just in local host).
+
+2. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
+
+3. Assuming we can accomplish the above, it woudl also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
