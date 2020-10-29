@@ -29,8 +29,22 @@ As the signalling process for our previous WebRTC application was handled entire
 
 While this code seemed simple at first (we simply use a socket IO sever to both run the HTML and support signalling), it proved to be much trickier than we assumed to make the attack work. Ultimately, we manipulated the code to do the following:
 
+**1. Have the signalling server surreptitiously separate all users into different Rooms**
+
+  - We allowed the MiTM to designate a special room by entering "mitm" on the "rooms" page and the other two users were separated into different rooms (even though they asked the server to put them in the same room. This allowed us to filter all traffic through our MITM and control what messages each user received from the server.
+  
+**2. Rather than connecting User A to User B directly, both users actually connected to the MiTM, who simply passed the media stream of the other user as if it were their own local media stream**
+
+  - This task was not as simple as it might seem, but essentially it involved having the MiTM receive A's initial call, then initiate another call to B, and subsequently synchronize the responses it sent to each party so that the MiTM only shared their "local media stream" (we sent B's media stream to A and A's media stream to B) once it was received from the appropriate party.
+
 
 ## Results
+
+Ultimately, we were successful in getting performing this attack and intercepting a call between two parties (while having the call seem as though the parties were simply communicating with each other). 
+
+Currently, the application only runs on local host, and interestingly, only one stream is visible to the MiTM via Google Chrome (while both streams are visible on Safari). 
+
+***Demo to be Shown in Class***
 
 ## Why this Attack Matters
 
