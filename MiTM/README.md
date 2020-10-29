@@ -7,7 +7,7 @@ This repository contains our efforts to conduct a MiTM attack on a WebRTC applic
 
 As defined by [Wikipedia](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) *"a man-in-the-middle...(MITM)... attack is a cyberattack where the attacker secretly relays and possibly alters the communications between two parties who believe that they are directly communicating with each other."*
 
-<div align="center"><a href="url"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Man_in_the_middle_attack.svg" align="center" height="200" width="250" ></a>
+<div align="center"><a href="url"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Man_in_the_middle_attack.svg" align="center" height="200" width="400" ></a>
   
 *Source: By Miraceti - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=5672044*</div>
 
