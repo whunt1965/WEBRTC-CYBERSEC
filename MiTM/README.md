@@ -18,6 +18,7 @@ To pull off this attack, we needed first to better understand how WebRTC signall
 
 The below graphic (pulled from [the santanas GitHub repo](https://github.com/satanas/simple-signaling-server)) provides a nice overview of how signalling works:
 <div align="center"><a href="url"><img src="https://raw.githubusercontent.com/satanas/simple-signaling-server/master/doc/RTCPeerConnection-diagram.png" align="center" height="200" width="400" ></a>
+  
 *Source: https://github.com/satanas/simple-signaling-server*</div>
 
 Our goal here was to use our own "compromised" signalling server so that when two parties used our server to set up a call, they would instead both connect to a third party (our MiTM) would be able to intercept and their media streams without the other two parties' realizing what was happening.
