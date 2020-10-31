@@ -12,7 +12,7 @@ As defined by [Wikipedia](https://en.wikipedia.org/wiki/Man-in-the-middle_attack
 *Source: By Miraceti - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=5672044*</div>
 
 ### Man-in-Middle and WebRTC: Attacking the Signalling Process
-While we previously intended to compromise a TURN server in order to perform the attack, further research (specifically [this account](https://webrtchacks.com/webrtc-and-man-in-the-middle-attacks/) on a successful WebRTC MiTM attack by Alan Johnston) led us to realize that we needed to begin by compromising the signalling server. A TURN server might offer another mechanism to perform such an attack, but thus far we have been unable to find any accounts of someone successfully using a TURN server to perform a MiTM exploit. 
+While we previously intended to compromise a TURN server in order to perform the attack, further research (specifically [this account](https://webrtchacks.com/webrtc-and-man-in-the-middle-attacks/) on a successful WebRTC MiTM attack by Alan Johnston) led us to realize that we needed to begin by compromising the signalling server. A TURN server might offer another vector to perform such an attack, but thus far we have been unable to find any accounts of someone successfully using a TURN server to perform a MiTM exploit. 
 
 To pull off this attack, we needed first to better understand how WebRTC signalling works. While there is no "standard" signalling transport mechanism for WebRTC, essentially the idea is that a signalling server provides a mechanism for two peers to exchange the information they need to set up a WebRTC connection (either P2P or through a STUN or TURN server).
 
