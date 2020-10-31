@@ -72,4 +72,4 @@ We found this attack very interesting and would like to continue to expand upon 
 
 2. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
 
-3. Assuming we can accomplish the above, it woudl also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
+3. Assuming we can accomplish the above, it would also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
