@@ -56,7 +56,7 @@ However, even with these assumptions, our example does show that is possible for
 ## Running on Your own Device
 To begin, please visit the [Realtime communication with WebRTC codelab](https://codelabs.developers.google.com/codelabs/webrtc-web/#0) and follow the instructions for getting source code and installing necessary dependencies (including NodeJS). 
 
-You can then clone our repo to get the source files. 
+You can then clone our repo to get the source files (Working_Demo contains the complete MiTM attack, while MiTM_Demo1 contains iterative versions in which we experimented with the code to produce our final result). 
 
 From your command line in the local directory into which you've cloned the repo, run "npm install" (to install the necessary Node.js dependencies) and then "node index.js" to set up the local signalling server.
 
