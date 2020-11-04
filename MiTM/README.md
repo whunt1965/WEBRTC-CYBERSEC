@@ -12,7 +12,7 @@ As defined by [Wikipedia](https://en.wikipedia.org/wiki/Man-in-the-middle_attack
 *Source: By Miraceti - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=5672044*</div>
 
 ### Man-in-Middle and WebRTC: Attacking the Signalling Process
-While we previously intended to compromise a TURN server in order to perform the attack, further research (specifically [this account](https://webrtchacks.com/webrtc-and-man-in-the-middle-attacks/) on a successful WebRTC MiTM attack by Alan Johnston) led us to realize that we needed to begin by compromising the signalling server. A TURN server might offer another mechanism to perform such an attack, but thus far we have been unable to find any accounts of someone successfully using a TURN server to perform a MiTM exploit. 
+While we previously intended to compromise a TURN server in order to perform the attack, further research (specifically [this account](https://webrtchacks.com/webrtc-and-man-in-the-middle-attacks/) on a successful WebRTC MiTM attack by Alan Johnston) led us to realize that we needed to begin by compromising the signalling server. A TURN server might offer another vector to perform such an attack, but thus far we have been unable to find any accounts of someone successfully using a TURN server to perform a MiTM exploit. 
 
 To pull off this attack, we needed first to better understand how WebRTC signalling works. While there is no "standard" signalling transport mechanism for WebRTC, essentially the idea is that a signalling server provides a mechanism for two peers to exchange the information they need to set up a WebRTC connection (either P2P or through a STUN or TURN server).
 
@@ -56,7 +56,7 @@ However, even with these assumptions, our example does show that is possible for
 ## Running on Your own Device
 To begin, please visit the [Realtime communication with WebRTC codelab](https://codelabs.developers.google.com/codelabs/webrtc-web/#0) and follow the instructions for getting source code and installing necessary dependencies (including NodeJS). 
 
-You can then clone our repo to get the source files. 
+You can then clone our repo to get the source files (Working_Demo contains the complete MiTM attack, while MiTM_Demo1 contains iterative versions in which we experimented with the code to produce our final result). 
 
 From your command line in the local directory into which you've cloned the repo, run "npm install" (to install the necessary Node.js dependencies) and then "node index.js" to set up the local signalling server.
 
@@ -72,4 +72,4 @@ We found this attack very interesting and would like to continue to expand upon 
 
 2. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
 
-3. Assuming we can accomplish the above, it woudl also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
+3. Assuming we can accomplish the above, it would also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
