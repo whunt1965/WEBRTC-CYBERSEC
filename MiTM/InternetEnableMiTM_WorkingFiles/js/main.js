@@ -17,10 +17,16 @@ var tellA_toCall = false;
 
 var BremoteStream;
 
-var pcConfig = {
-  'iceServers': [{
-    'urls': 'stun:stun.l.google.com:19302'
-  }]
+const configuration = {
+  iceServers: [
+    {
+      urls: [
+        'stun:stun1.l.google.com:19302',
+        'stun:stun2.l.google.com:19302',
+      ],
+    },
+  ],
+  iceCandidatePoolSize: 10,
 };
 
 // Set up audio and video regardless of what devices are present.
@@ -224,7 +230,7 @@ window.onbeforeunload = function() {
 function createTwoConnection(pcinput) {
   if (pcinput === "pcA"){
   try {
-    pcA = new RTCPeerConnection(null);
+    pcA = new RTCPeerConnection(configuration);
     pcA.onicecandidate = ToA_handleIceCandidate;
     pcA.onaddstream = FromA_handleRemoteStreamAdded;
     pcA.onremovestream = handleRemoteStreamRemoved;
@@ -238,7 +244,7 @@ function createTwoConnection(pcinput) {
 else if (pcinput === "pcB")
 {
   try {
-    pcB = new RTCPeerConnection(null);
+    pcB = new RTCPeerConnection(configuration);
     pcB.onicecandidate = ToB_handleIceCandidate;
     pcB.onaddstream = FromB_handleRemoteStreamAdded;
     pcB.onremovestream = handleRemoteStreamRemoved;
