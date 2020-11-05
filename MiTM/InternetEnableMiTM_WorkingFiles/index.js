@@ -59,6 +59,7 @@ io.sockets.on('connection', function(socket) {
     if(room === "mitm"){
       socket.join(room);
       socket.emit("set attacker");
+      numClients++;
     }else{
     
     log('Received request to create or join room ' + room);
@@ -68,14 +69,14 @@ io.sockets.on('connection', function(socket) {
     //delted as we now separate into rooms
     log('Room ' + room + ' now has ' + numClients + ' client(s)');
 
-    if (numClients === 0) {
+    if (numClients === 1) {
       room = compromisedroom1;
       socket.join(room);
       log('Client ID ' + socket.id + ' created room ' + room);
       socket.emit('created', room, socket.id);
       numClients++;
 
-    } else if (numClients === 1) {
+    } else if (numClients === 2) {
       room = compromisedroom2;
       log('Client ID ' + socket.id + ' joined room ' + room);
       io.sockets.in(compromisedroom1).emit('join', compromisedroom1);//I think we need to signal to first room to kick off process
