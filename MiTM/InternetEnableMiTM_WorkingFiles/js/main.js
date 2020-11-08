@@ -20,13 +20,17 @@ var BremoteStream;
 const configuration = {
   iceServers: [
     {
-      urls: [
-        'stun:stun1.l.google.com:19302',
-        'stun:stun2.l.google.com:19302',
-      ],
+      'url': 'stun:stun1.l.google.com:19302',
     },
+    {
+      'url': 'stun:stun2.l.google.com:19302',
+    },
+    {
+      'url': 'dummy',
+      'credential': 'dummy',
+      'username': 'dummy'
+    }
   ],
-  iceCandidatePoolSize: 10,
 };
 
 // Set up audio and video regardless of what devices are present.
