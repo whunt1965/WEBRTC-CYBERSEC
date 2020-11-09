@@ -9,9 +9,16 @@ var remoteStream;
 var turnReady;
 
 var pcConfig = {
-  'iceServers': [{
-    'urls': 'stun:stun.l.google.com:19302'
-  }]
+  iceServers: [
+    {
+      'urls': 'stun:stun.l.google.com:19302',
+    },
+    {
+      'urls': '',
+      'credential': '',
+      'username': ''
+    }
+  ],
 };
 
 // Set up audio and video regardless of what devices are present.
@@ -146,7 +153,7 @@ window.onbeforeunload = function() {
 
 function createPeerConnection() {
   try {
-    pc = new RTCPeerConnection(null);
+    pc = new RTCPeerConnection(pcConfig);
     pc.onicecandidate = handleIceCandidate;
     pc.onaddstream = handleRemoteStreamAdded;
     pc.onremovestream = handleRemoteStreamRemoved;
