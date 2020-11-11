@@ -53,6 +53,7 @@ socket.on('created', function(room) {
   console.log('Created room ' + room);
   myRoom = room;
   isInitiator = true;
+ // isChannelReady = true;//added 11/11 as peerconnection was not starting for A in MaybeStart()
 });
 
 socket.on('full', function(room) {
@@ -78,8 +79,8 @@ socket.on('log', function(array) {
 
 //test function to have attacker forward messages
 socket.on('sniff', function(message, room){
-    console.log("sniffed mssage:" + message)
-    if (tellA_toCall === false)
+    console.log("sniffed message:" + message)
+    if ((room  !== 'bad1') &&(message === "got user media"))//b sends got user media before room name ('bad2') is assigned, this should alert us to when b has a room
     {
       ForwardA_Message("got user media")
       //tellA_toCall = true;//added 11-11 may help prevent multiple sends here
@@ -368,6 +369,7 @@ function onCreateSessionDescriptionError(error) {
 
 function requestTurn(turnURL) {
   var turnExists = false;
+  console.log("RequestTURN called in Room", myRoom);	
   for (var i in pcConfig.iceServers) {
     if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
       turnExists = true;

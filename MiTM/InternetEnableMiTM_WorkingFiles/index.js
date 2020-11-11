@@ -72,16 +72,16 @@ io.sockets.on('connection', function(socket) {
     if ((numClients%2) === 1) {
       room = compromisedroom1;
       socket.join(room);
-      log('Client ID ' + socket.id + ' created room ' + room);
+      log('Client ID ' + socket.id + ' created room ' + compromisedroom1);
       socket.emit('created', room, socket.id);
       numClients++;
 
     } else if ((numClients%2) === 0) {
       room = compromisedroom2;
-      log('Client ID ' + socket.id + ' joined room ' + room);
+      log('Client ID ' + socket.id + ' joined room ' + compromisedroom2);
       io.sockets.in(compromisedroom1).emit('join', compromisedroom1);//I think we need to signal to first room to kick off process
-      socket.join(room);
-      socket.emit('joined', room, socket.id);
+      socket.join(compromisedroom2);
+      socket.emit('joined', compromisedroom2, socket.id);
       io.sockets.in(room).emit('ready');
       numClients++;
     } else { // max two clients
