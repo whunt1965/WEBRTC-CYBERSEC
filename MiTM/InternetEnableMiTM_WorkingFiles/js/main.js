@@ -398,7 +398,7 @@ function requestTurn(turnURL) {
 function FromA_handleRemoteStreamAdded(event) { //Video coming from A
   console.log('Remote stream added from A.');
   localStream = event.stream;
-  remoteVideo2.srcObject = localStream;
+  localVideo.srcObject = localStream;
   pcB.addStream(localStream)
   doFakeCall();
   
