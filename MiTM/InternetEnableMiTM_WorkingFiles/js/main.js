@@ -82,6 +82,7 @@ socket.on('sniff', function(message, room){
     if (tellA_toCall === false)
     {
       ForwardA_Message("got user media")
+      tellA_toCall = true;//added 11-11 may help prevent multiple sends here
     }
 
   if (isAttacker && !fakeoffer && message.type === "offer"){ // if this is attack and fake offer hasn't been created
@@ -209,11 +210,6 @@ function maybeStart() {
     console.log('>>>>>> creating peer connection');
     createPeerConnection();
     pc.addStream(localStream);
-
-    var newStream = new MediaStream(localStream);
-    socket.emit('stream', newStream);
-    console.log('Uh oh, shared my stream...');
-
     isStarted = true;
     console.log('isInitiator', isInitiator);
     if (isInitiator) {
@@ -402,13 +398,13 @@ function requestTurn(turnURL) {
 function FromA_handleRemoteStreamAdded(event) { //Video coming from A
   console.log('Remote stream added from A.');
   localStream = event.stream;
-  localVideo.srcObject = localStream;
+  remoteVideo2.srcObject = localStream;
   pcB.addStream(localStream)
   doFakeCall();
   
 }
 
-function FromB_handleRemoteStreamAdded(event) {
+function FromB_handleRemoteStreamAdded(event) {//Video coming from B
   console.log('Remote stream added from B.');
   BremoteStream = event.stream;
   remoteVideo.srcObject = BremoteStream;
@@ -450,21 +446,3 @@ function stop() {
 
 
 
-//shim functions for setting attacker streams
-// NOT currently working
-
-//gets stream from server
-// socket.on('captured stream', function(stream){
-//   cloneStream(stream);
-// });
-
-// //sets local streams in DOM
-// function cloneStream(stream){
-//   if (localStream !== 'undefined'){
-//     localStream = stream;
-//     localVideo.srcObject = localStream;
-//   }else{
-//     remoteStream = stream;
-//     remoteVideo.srcObject = remoteStream;
-//   }
-// }
