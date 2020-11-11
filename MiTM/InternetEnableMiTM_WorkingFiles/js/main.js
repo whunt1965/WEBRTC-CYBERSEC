@@ -82,7 +82,7 @@ socket.on('sniff', function(message, room){
     if (tellA_toCall === false)
     {
       ForwardA_Message("got user media")
-      tellA_toCall = true;//added 11-11 may help prevent multiple sends here
+      //tellA_toCall = true;//added 11-11 may help prevent multiple sends here
     }
 
   if (isAttacker && !fakeoffer && message.type === "offer"){ // if this is attack and fake offer hasn't been created
