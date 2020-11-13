@@ -20,7 +20,7 @@ var BremoteStream;
 /**
  * ICE server configs -- need to fill in stun info
  */
-const configuration = {
+const configuration = {iceTransportPolicy: "relay",
   iceServers: [
     {
       'urls': 'stun:stun.l.google.com:19302',
@@ -29,7 +29,13 @@ const configuration = {
       'urls': '',
       'credential': '',
       'username': ''
+    },
+    {
+      'urls': '',
+      'credential': '',
+      'username': ''    
     }
+
   ],
 };
 
@@ -142,7 +148,10 @@ socket.on('message', function(message) {
     pc.setRemoteDescription(new RTCSessionDescription(message));
     doAnswer();
   } else if (message.type === 'answer' && isStarted) {
-    pc.setRemoteDescription(new RTCSessionDescription(message));
+	  console.log("A received an answer!");
+	  var temp = message;
+    setTimeout(() => { pc.setRemoteDescription(new RTCSessionDescription(temp));}, 2000);
+    //pc.setRemoteDescription(new RTCSessionDescription(message));
   } else if (message.type === 'candidate' && isStarted) {
     var candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
