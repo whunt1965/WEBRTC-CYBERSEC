@@ -71,11 +71,23 @@ After successfully deploying the attack on localhost, we attempted to deploy our
 ### Set Up and Debugging
 Launching our original attack as a Google Cloud Platform application involved a number of additional configuration steps (a basic summary of launching a js application on the Google Cloud App engine is detailed [here](https://cloud.google.com/appengine/docs/standard/nodejs/quickstart)). Notably, these steps included configuring a .yaml file (to automatically launch the application) and creating a flexible runtime environment (to support Socket.io). 
 
-However, even after launching, the app failed to connect users. We quickly 
+However, even after launching, the app failed to connect users. We quickly realized we needed a TURN server to get through the firewalls and establish a connection.
+
+turn server image
+
+So, we both set up TURN Servers using [coTurn - an open source TURN Server project](https://github.com/coturn/coturn) on Google Cloud Compute engine virtual machines (using previously acquired domain names for each TURN Server). Although initially our application still would not work, we confirmed that the TURN servers were indeed functioning by both using the [TrickleIce tool](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/) and launching the original google code lab (which we used as the baseline code for our attack) on a separate Google Cloud platform App Engine instance (and using our TURN servers to relay traffic).  
+
+After nearly 2 weeks of failing to launch our application, we finally found the bug: an incorrectly assigned boolean that was preventing the attacker from registering Ice Candidates received. Aftr fixing this mistake, we successfully launched the application. 
 
 ### App Improvements
+After fixing the connection issues, we made a few additional improvements to our "compromised" application to make the attack work a little more seamlessly
+
+* **Room set up:** Because our application relied on a precise sequence of events (user A calls the attacker -> the attacker calls user B -> user B connects with the attacker -> the attacker connects with user A) we had to seprate users into separate rooms based on the order in which they joined. While this separation scheme made the attack easier to manage, it proved to be very easy to break if a user disconnected and then reconnected.
+
+Video sources
 
 ### Demo
+Demo to be shown in class.
 
 ### Next Steps for Sprint 5
 
