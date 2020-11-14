@@ -98,6 +98,7 @@ function ForwardB_Message(message){
 socket.on('set attacker', function(){
   isAttacker = true;
   document.getElementById("header").innerHTML = "You are the attacker!";
+  //document.getElementById("localVideo").removeAttribute("muted");
   createTwoConnection("pcB");
   createTwoConnection("pcA");
 });
@@ -149,9 +150,9 @@ socket.on('message', function(message) {
     doAnswer();
   } else if (message.type === 'answer' && isStarted) {
 	  console.log("A received an answer!");
-	  var temp = message;
-    setTimeout(() => { pc.setRemoteDescription(new RTCSessionDescription(temp));}, 2000);
-    //pc.setRemoteDescription(new RTCSessionDescription(message));
+	  //var temp = message;
+    //setTimeout(() => { pc.setRemoteDescription(new RTCSessionDescription(temp));}, 2000);
+    pc.setRemoteDescription(new RTCSessionDescription(message));
   } else if (message.type === 'candidate' && isStarted) {
     var candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
@@ -188,7 +189,7 @@ socket.on('sniff', function(message, room){
   }
 
   //manages Ice negotiation process for attacker
-  if (message.type === 'candidate' && isStarted) {
+  if (message.type === 'candidate') {
     var candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate
@@ -225,8 +226,10 @@ navigator.mediaDevices.getUserMedia({
 function gotStream(stream) {
   if(!isAttacker){
     console.log('Adding local stream.');
+    //document.getElementById("localVideo").setAttribute("muted", "muted");
     localStream = stream;
     localVideo.srcObject = stream;
+    localVideo.muted = true;  
     sendMessage('got user media');
     if (isInitiator) {
       maybeStart();
