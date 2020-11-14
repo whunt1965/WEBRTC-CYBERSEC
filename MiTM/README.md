@@ -42,7 +42,7 @@ While this code seemed simple at first (we simply use a socket IO sever to both 
 
 Ultimately, we were successful in getting performing this attack and intercepting a call between two parties (while having the call seem as though the parties were simply communicating with each other). 
 
-Currently, the application only runs on local host, and interestingly, only one stream is visible to the MiTM via Google Chrome (while both streams are visible on Safari). 
+Currently, the application only runs on local host, and interestingly, only one stream is visible to the MiTM via Google Chrome (while both streams are visible on Safari). *N.B. This Bug was fixed in our online version by altering the mute settings of the localVideo of A/B*
 
 ***Demo to be Shown in Class***
 
@@ -80,24 +80,22 @@ However, even after launching, the app failed to connect users. We quickly reali
 
 So, we both set up TURN Servers using [coTurn - an open source TURN Server project](https://github.com/coturn/coturn) on Google Cloud Compute engine virtual machines (using previously acquired domain names for each TURN Server). Although initially our application still would not work, we confirmed that the TURN servers were indeed functioning by both using the [TrickleIce tool](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/) and launching the original google code lab (which we used as the baseline code for our attack) on a separate Google Cloud platform App Engine instance (and using our TURN servers to relay traffic).  
 
-After nearly 2 weeks of failing to launch our application, we finally found the bug: an incorrectly assigned boolean that was preventing the attacker from registering Ice Candidates received. Aftr fixing this mistake, we successfully launched the application. 
+After nearly 2 weeks of failing to launch our application, we finally found the bug: an incorrectly assigned boolean that was preventing the attacker from registering Ice Candidates received. Aftr fixing this mistake, we successfully launched the application (again, using our TURN servers to relay the media stream traffic in the connection). 
 
 ### App Improvements
 After fixing the connection issues, we made a few additional improvements to our "compromised" application to make the attack work a little more seamlessly
 
-* **Room set up:** Because our application relied on a precise sequence of events (user A calls the attacker -> the attacker calls user B -> user B connects with the attacker -> the attacker connects with user A) we had to seprate users into separate rooms based on the order in which they joined. While this separation scheme made the attack easier to manage, it proved to be very easy to break if a user disconnected and then reconnected.
+* **Room set up:** Because our application relied on a precise sequence of events (user A calls the attacker -> the attacker calls user B -> user B connects with the attacker -> the attacker connects with user A) we had to separate users into separate rooms based on the order in which they joined. While this separation scheme made the attack easier to manage, it proved to be very easy to break if a user disconnected and then reconnected. We therefore modified our signal server code to "intelligently" assign each user to whichever room is empty (rather than based on the order in which they joined). While we are still limited to only 2 callers at a time on the application (plus the man-in-the-middle), we were able to eliminate this clunkiness. 
 
-Video sources
+* **Video Sources:** By default, a user's local video (their own video stream of themselves) is muted. However, in the attacker's case, we want to recieve the audio from both media streams. To accomplish this, we modified the original html of the page (eliminated the "muted" attribute of the local video) and used JS to dynamically mute the localvideo of users A and B (while keeping the attacker's localvideo (their view of A) unmuted. Interestingly, this also fixed a previous bug in our localHost version of the application in which the attacker could not view the videostream from A while using chrome (although the reason behind this fix is still unclear).
 
 ### Demo
 Demo to be shown in class.
 
 ### Next Steps for Sprint 5
 
-We found this attack very interesting and would like to continue to expand upon it in Sprint 4. In particular, we will seek to:
+In Sprint4, we had originally planned to introduce additional features to the app (other than just making it available online). However, due to the difficulties in getting it deployed (and debugging the connection failures), we weren't able to get as far as we originally intended. Therefore, we would like to pursue additional activitied to make this attack more realistic/effective:
 
-1. Deploy our signalling server to a web-accesible virtual machine (so we can see how the attack would work in the real world, not just in local host).
+1. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
 
-2. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
-
-3. Assuming we can accomplish the above, it would also be interesting to see if we could implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. 
+2. Explore if we can implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. There are a few WebRTC recording libraries available, so it would be interesting to see if these could be integrated into our app (and prevent any "recording" icons from showing up on the compromised users' browsers.  
