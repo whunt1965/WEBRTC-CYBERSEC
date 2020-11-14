@@ -64,7 +64,20 @@ In your browser, visit localhost:8080. For the first session, set your room as '
 
 In the "Attacker" tab, you will see and/hear the video from the other tabs. Note: in Google Chrome, only one user's video is available in the attacker tab (in Safari, both will be visible).
 
-## Looking Ahead: Sprint 4
+## Going Live Online
+
+After successfully deploying the attack on localhost, we attempted to deploy our application online so that we could see if it would work for different users not on the same computer/network. Unfotunately, this proved to be a much more arduous task than we initially expected. Below is a summary of our work in this area:
+
+### Set Up and Debugging
+Launching our original attack as a Google Cloud Platform application involved a number of additional configuration steps (a basic summary of launching a js application on the Google Cloud App engine is detailed [here](https://cloud.google.com/appengine/docs/standard/nodejs/quickstart)). Notably, these steps included configuring a .yaml file (to automatically launch the application) and creating a flexible runtime environment (to support Socket.io). 
+
+However, even after launching, the app failed to connect users. We quickly 
+
+### App Improvements
+
+### Demo
+
+### Next Steps for Sprint 5
 
 We found this attack very interesting and would like to continue to expand upon it in Sprint 4. In particular, we will seek to:
 
