@@ -73,7 +73,10 @@ Launching our original attack as a Google Cloud Platform application involved a 
 
 However, even after launching, the app failed to connect users. We quickly realized we needed a TURN server to get through the firewalls and establish a connection.
 
-turn server image
+<div align="center"><a href="url"><img src="https://github.com/whunt1965/WEBRTC-CYBERSEC/blob/main/turn.jpg" align="center"></a>
+  
+  *Source: reproduced by Apollo based on https://stackoverflow.com/questions/12708252/how-does-webrtc-work*</div>
+  
 
 So, we both set up TURN Servers using [coTurn - an open source TURN Server project](https://github.com/coturn/coturn) on Google Cloud Compute engine virtual machines (using previously acquired domain names for each TURN Server). Although initially our application still would not work, we confirmed that the TURN servers were indeed functioning by both using the [TrickleIce tool](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/) and launching the original google code lab (which we used as the baseline code for our attack) on a separate Google Cloud platform App Engine instance (and using our TURN servers to relay traffic).  
 
