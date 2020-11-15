@@ -94,8 +94,8 @@ Demo to be shown in class.
 
 ### Next Steps for Sprint 5
 
-In Sprint4, we had originally planned to introduce additional features to the app (other than just making it available online). However, due to the difficulties in getting it deployed (and debugging the connection failures), we weren't able to get as far as we originally intended. Therefore, we would like to pursue additional activitied to make this attack more realistic/effective:
+Having successfully got our MiTM attack running, we are at a crossroads with the next steps we want to pursue in Sprint 5. We have listed a couple of options below, but would like to have an open discussion.
 
-1. Explore how we might separate the "clean" (ie original) client-side Javascript used to support a normal call between 2 parties from the malicious Javascript we added to make this call possible (such as having the attacker access the application through a separate page).
+1. Continue building on our MitM attack. For example, we could try to implement the ability for an attacker to join an ongoing call (rather than have to be in the attack room before the call starts) as well as explore how we might be able to utilize some of the tools for WebRTC session recording(there are a few WebRTC recording libraries available, so it would be interesting to see if these could be integrated into our app and prevent any "recording" icons from showing up on the compromised users' browsers).
 
-2. Explore if we can implement features so that an attacker could record the call (not just view it) so that it could be accessed at a later date. There are a few WebRTC recording libraries available, so it would be interesting to see if these could be integrated into our app (and prevent any "recording" icons from showing up on the compromised users' browsers.  
+2. Continue exploring what information we can log/exploit from our TURN servers. Currently, our logs are not working, but the TURN server should provide some logging of users IP's. Based on our research into TURN servers, since they can be difficult to set up, the ones for which credentials are openly available tend to be aggregated on open source (and ostensibly used by developers). Assuming we can get the logging running (and get something useful from the logs), these might be an interesting "honeypot" for capturing user information.
