@@ -1,5 +1,5 @@
 # Conducting a MiTM Attack on a WebRTC application (Part 2 - Taking the Application Online)
-This repository contains our efforts to conduct a MiTM attack on a WebRTC application.
+This Sprint involved our efforts to deploy our MiTM attack as an online WebRTC application.
 
 ## Going Live Online
 
