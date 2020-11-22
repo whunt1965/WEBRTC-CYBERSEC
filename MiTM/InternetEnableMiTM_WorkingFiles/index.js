@@ -73,20 +73,21 @@ io.sockets.on('connection', function(socket) {
     if(room === "mitm"){
       socket.join(room);
       socket.emit("set attacker");
-      numClients++;
     }else{
     
     log('Received request to create or join room ' + room);
     log('Room ' + room + ' now has ' + numClients + ' client(s)');
+    var room1status = io.sockets.adapter.rooms[compromisedroom1];
+    var room2status = io.sockets.adapter.rooms[compromisedroom2]; 
 
-    if ((numClients%2) === 1) {
+    if (!room1status) {
       room = compromisedroom1;
       socket.join(room);
       log('Client ID ' + socket.id + ' created room ' + compromisedroom1);
       socket.emit('created', room, socket.id);
       numClients++;
 
-    } else if ((numClients%2) === 0) {
+    } else if (!room2status) {
       room = compromisedroom2;
       log('Client ID ' + socket.id + ' joined room ' + compromisedroom2);
       io.sockets.in(compromisedroom1).emit('join', compromisedroom1);//I think we need to signal to first room to kick off process
@@ -96,6 +97,7 @@ io.sockets.on('connection', function(socket) {
       numClients++;
     } else { // This statement is no longer reached as we no longer limit rooms to 2
       socket.emit('full', room);
+      log('room1  and room2 sizes:', room1status, room2status);    
     }
   }});
 
