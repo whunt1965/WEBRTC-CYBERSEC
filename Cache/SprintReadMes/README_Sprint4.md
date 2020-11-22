@@ -1,4 +1,4 @@
-# Conducting a MiTM Attack on a WebRTC application (Part 2 - Taking the Application Online)
+# Sprint 4 - Deploying an Online MiTM attack on a WebRTC Application
 This Sprint involved our efforts to deploy our MiTM attack as an online WebRTC application.
 
 ## Going Live Online
