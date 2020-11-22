@@ -35,6 +35,4 @@ In either case, the attack code can either be run in the local browser (with the
 
 These files provide an example of how a malicious WebRTC application could be used to spy on users. In particular, the second example (WebRTC_App) shows how easy it is to confuse a user into thinking a session has been terminated, while the stream actually remains open. While this application shows how the attack might take place in a P2P video chat scenario, it would be possible to replicate the results in a number of other scenarios (eg, opening a video session with a customer service rep on a company webpage). 
   
-### Turn_server_config
-This folder includes initial configuration files and set up instructions for a TURN server (which is a critical piece of WebRTC session enablement).
 
