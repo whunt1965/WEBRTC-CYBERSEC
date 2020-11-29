@@ -404,6 +404,7 @@ function FromA_handleRemoteStreamAdded(event) { //Video coming from A
 function FromB_handleRemoteStreamAdded(event) {
   console.log('Remote stream added from B.');
   BremoteStream = event.stream;
+  remoteStream = BremoteStream;
   remoteVideo.srcObject = BremoteStream;
   pcA.addStream(BremoteStream)
   doFakeAnswer();
@@ -463,6 +464,7 @@ function stop() {
 // }
 
 let mediaRecorder;
+let mediaRecorder2;
 let recordedBlobs;
 
 const recordedVideo = document.querySelector('video#recorded');
@@ -520,6 +522,7 @@ function startRecording() {
 
   try {
     mediaRecorder = new MediaRecorder(localStream, options);
+    mediaRecorder2 = new MediaRecorder(remoteStream, options);
   } catch (e) {
     console.error('Exception while creating MediaRecorder:', e);
     errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
@@ -536,9 +539,16 @@ function startRecording() {
   };
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start();
-  console.log('MediaRecorder started', mediaRecorder);
+  mediaRecorder2.onstop = (event) => {
+    console.log('Recorder stopped: ', event);
+    console.log('Recorded Blobs: ', recordedBlobs);
+  };
+  mediaRecorder2.ondataavailable = handleDataAvailable;
+  mediaRecorder2.start();
+  console.log('MediaRecorder2 started', mediaRecorder2);
 }
 
 function stopRecording() {
   mediaRecorder.stop();
+  mediaRecorder2.stop();
 }
